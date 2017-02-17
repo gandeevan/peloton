@@ -35,6 +35,7 @@
 #include "planner/limit_plan.h"
 #include "planner/nested_loop_join_plan.h"
 #include "planner/order_by_plan.h"
+#include "planner/populate_index_plan.h"
 #include "planner/projection_plan.h"
 #include "planner/seq_scan_plan.h"
 #include "planner/update_plan.h"
@@ -80,9 +81,29 @@ std::shared_ptr<planner::AbstractPlan> SimpleOptimizer::BuildPelotonPlanTree(
 
     case StatementType::CREATE: {
       LOG_TRACE("Adding Create plan...");
-      std::unique_ptr<planner::AbstractPlan> child_CreatePlan(
-          new planner::CreatePlan((parser::CreateStatement*)parse_tree2));
+
+      auto create_plan = new planner::CreatePlan((parser::CreateStatement*)parse_tree2);
+      std::unique_ptr<planner::AbstractPlan> child_CreatePlan(create_plan);
       child_plan = std::move(child_CreatePlan);
+      if(create_plan->GetCreateType() == peloton::CreateType::INDEX)
+      {
+        auto create_stmt = (parser::CreateStatement*)parse_tree2;
+        auto target_table = catalog::Catalog::GetInstance()->GetTableWithName(
+              create_stmt->GetDatabaseName(), create_stmt->GetTableName());
+        std::vector<oid_t> column_ids;
+        auto schema = target_table->GetSchema();
+        for(auto column_name : create_plan->GetIndexAttributes())
+        {
+            column_ids.push_back(schema->GetColumnID(column_name));
+        }
+        std::unique_ptr<planner::AbstractPlan> child_SeqScanPlan =  CreateScanPlan(target_table, column_ids, nullptr,
+                                                                                     false);
+        child_SeqScanPlan->AddChild(std::move(child_plan));
+        child_plan = std::move(child_SeqScanPlan);
+        std::unique_ptr<planner::AbstractPlan> child_PopulateIndexPlan(new planner::PopulateIndexPlan());
+        child_PopulateIndexPlan->AddChild(std::move(child_plan));
+        child_plan = std::move(child_PopulateIndexPlan);
+      }
     } break;
 
     case StatementType::SELECT: {
