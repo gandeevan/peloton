@@ -100,7 +100,7 @@ std::shared_ptr<planner::AbstractPlan> SimpleOptimizer::BuildPelotonPlanTree(
                                                                                      false);
         child_SeqScanPlan->AddChild(std::move(child_plan));
         child_plan = std::move(child_SeqScanPlan);
-        std::unique_ptr<planner::AbstractPlan> child_PopulateIndexPlan(new planner::PopulateIndexPlan());
+        std::unique_ptr<planner::AbstractPlan> child_PopulateIndexPlan(new planner::PopulateIndexPlan(target_table, column_ids));
         child_PopulateIndexPlan->AddChild(std::move(child_plan));
         child_plan = std::move(child_PopulateIndexPlan);
       }

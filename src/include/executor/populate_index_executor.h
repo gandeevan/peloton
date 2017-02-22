@@ -20,6 +20,7 @@
 #include "executor/abstract_executor.h"
 #include "executor/logical_tile.h"
 #include "common/container_tuple.h"
+#include "storage/data_table.h"
 
 namespace peloton {
 namespace executor {
@@ -34,6 +35,7 @@ class PopulateIndexExecutor : public AbstractExecutor {
 
   explicit PopulateIndexExecutor(const planner::AbstractPlan *node,
                         ExecutorContext *executor_context);
+  inline storage::DataTable *GetTable() const { return target_table_; }
 
  protected:
   bool DInit();
@@ -44,6 +46,13 @@ class PopulateIndexExecutor : public AbstractExecutor {
   /** @brief Input tiles from child node */
   std::vector<std::unique_ptr<LogicalTile>> child_tiles_;
 
+  //===--------------------------------------------------------------------===//
+  // Plan Info
+  //===--------------------------------------------------------------------===//
+
+  /** @brief Pointer to table to scan from. */
+  storage::DataTable *target_table_ = nullptr;
+  std::vector<oid_t> column_ids_;
   bool done_ = false;
 };
 

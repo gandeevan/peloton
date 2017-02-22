@@ -18,9 +18,11 @@
 #include "type/value.h"
 #include "executor/logical_tile.h"
 #include "executor/populate_index_executor.h"
+#include "executor/executor_context.h"
 #include "planner/populate_index_plan.h"
 #include "expression/tuple_value_expression.h"
 #include "storage/data_table.h"
+#include "storage/tile.h"
 
 namespace peloton {
 namespace executor {
@@ -38,19 +40,25 @@ PopulateIndexExecutor::PopulateIndexExecutor(const planner::AbstractPlan *node,
  */
 bool PopulateIndexExecutor::DInit() {
   PL_ASSERT(children_.size() == 1);
+  PL_ASSERT(executor_context_);
 
   // Initialize executor state
+  const planner::PopulateIndexPlan &node = GetPlanNode<planner::PopulateIndexPlan>();
+  target_table_ = node.GetTable();
+  column_ids_ = node.GetColumnIds();
   done_ = false;
-  result_itr = 0;
+//  result_itr = 0;
 
   return true;
 }
 
 bool PopulateIndexExecutor::DExecute() {
   LOG_TRACE("Populate Index Executor");
-
+  PL_ASSERT(executor_context_ != nullptr);
+  auto current_txn = executor_context_->GetTransaction();
+  auto executor_pool = executor_context_->GetPool();
   if (done_ == false) {
-    const planner::PopulateIndexPlan &node = GetPlanNode<planner::PopulateIndexPlan>();
+    //LOG_DEBUG("%s", node.GetInfo().c_str());
 
     // First, get all the input logical tiles
     while (children_[0]->Execute()) {
@@ -63,7 +71,12 @@ bool PopulateIndexExecutor::DExecute() {
     }
 
 
+    auto target_table_schema = target_table_->GetSchema();
 
+    std::unique_ptr<storage::Tuple> tuple(
+        new storage::Tuple(target_table_schema, true));
+
+    // Go over the logical tile
 
     // Construct the hash table by going over each child logical tile and
     // hashing
@@ -73,19 +86,24 @@ bool PopulateIndexExecutor::DExecute() {
 
       // Go over all tuples in the logical tile
       for (oid_t tuple_id : *tile) {
-        storage::
-        // Key : container tuple with a subset of tuple attributes
-        // Value : < child_tile offset, tuple offset >
-        auto key = HashMapType::key_type(tile, tuple_id, &column_ids_);
-        if (hash_table_.find(key) != hash_table_.end()){
-           //If data is already present, remove from output
-           //but leave data for hash joins.
-           tile->RemoveVisibility(tuple_id);
+          expression::ContainerTuple<LogicalTile> cur_tuple(tile,
+                                                            tuple_id);
+
+          // Materialize the logical tile tuple
+          for (auto column_itr : column_ids_) {
+            type::Value val = (cur_tuple.GetValue(column_itr));
+            tuple->SetValue(column_itr, val, executor_pool);
+
+          ItemPointer location(tile->GetBaseTile(column_itr)->GetTileId(), tuple_id);
+
+          // insert tuple into the table.
+          ItemPointer *index_entry_ptr = nullptr;
+
+        target_table_->InsertInIndexes(tuple.get(),location,current_txn,&index_entry_ptr);
         }
-        hash_table_[key].insert(
-                    std::make_pair(child_tile_itr, tuple_id));
       }
     }
+
 
     done_ = true;
   }
