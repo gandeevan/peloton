@@ -74,8 +74,9 @@ bool SeqScanExecutor::DInit() {
  * @return true on success, false otherwise.
  */
 bool SeqScanExecutor::DExecute() {
+  const planner::SeqScanPlan &node = GetPlanNode<planner::SeqScanPlan>();
   // Scanning over a logical tile.
-  if (children_.size() == 1) {
+  if (children_.size() == 1 && !(node.GetChildren()[0]->GetPlanNodeType() == PlanNodeType::CREATE)) {
     // FIXME Check all requirements for children_.size() == 0 case.
     LOG_TRACE("Seq Scan executor :: 1 child ");
 
@@ -109,7 +110,8 @@ bool SeqScanExecutor::DExecute() {
     return false;
   }
   // Scanning a table
-  else if (children_.size() == 0) {
+  else if (children_.size() == 0 || (children_.size() == 1 && node.GetChildren()[0]->GetPlanNodeType() == PlanNodeType::CREATE)
+           ) {
     LOG_TRACE("Seq Scan executor :: 0 child ");
 
     PL_ASSERT(target_table_ != nullptr);
