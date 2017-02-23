@@ -23,6 +23,7 @@
 #include "executor/executor_context.h"
 #include "expression/abstract_expression.h"
 #include "common/container_tuple.h"
+#include "planner/create_plan.h"
 #include "storage/data_table.h"
 #include "storage/tile_group_header.h"
 #include "storage/tile.h"
@@ -74,9 +75,8 @@ bool SeqScanExecutor::DInit() {
  * @return true on success, false otherwise.
  */
 bool SeqScanExecutor::DExecute() {
-  const planner::SeqScanPlan &node = GetPlanNode<planner::SeqScanPlan>();
   // Scanning over a logical tile.
-  if (children_.size() == 1 && !(node.GetChildren()[0]->GetPlanNodeType() == PlanNodeType::CREATE)) {
+  if (children_.size() == 1 && !(GetRawNode()->GetChildren().size() > 0 && GetRawNode()->GetChildren()[0].get()->GetPlanNodeType() == PlanNodeType::CREATE && ((planner::CreatePlan*)GetRawNode()->GetChildren()[0].get())->GetCreateType() == CreateType::INDEX)) {
     // FIXME Check all requirements for children_.size() == 0 case.
     LOG_TRACE("Seq Scan executor :: 1 child ");
 
@@ -110,13 +110,16 @@ bool SeqScanExecutor::DExecute() {
     return false;
   }
   // Scanning a table
-  else if (children_.size() == 0 || (children_.size() == 1 && node.GetChildren()[0]->GetPlanNodeType() == PlanNodeType::CREATE)
+  else if (children_.size() == 0 || (children_.size() == 1 && GetRawNode()->GetChildren().size() > 0 && GetRawNode()->GetChildren()[0].get()->GetPlanNodeType() == PlanNodeType::CREATE && ((planner::CreatePlan*)GetRawNode()->GetChildren()[0].get())->GetCreateType() == CreateType::INDEX)
            ) {
     LOG_TRACE("Seq Scan executor :: 0 child ");
 
     PL_ASSERT(target_table_ != nullptr);
     PL_ASSERT(column_ids_.size() > 0);
-
+    if (children_.size() > 0)
+    {
+        while(children_[0]->Execute());
+    }
     // Force to use occ txn manager if dirty read is forbidden
     concurrency::TransactionManager &transaction_manager =
         concurrency::TransactionManagerFactory::GetInstance();
