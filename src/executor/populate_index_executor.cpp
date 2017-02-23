@@ -90,16 +90,16 @@ bool PopulateIndexExecutor::DExecute() {
                                                             tuple_id);
 
           // Materialize the logical tile tuple
-          for (auto column_itr : column_ids_) {
+          for (oid_t column_itr = 0; column_itr < column_ids_.size(); column_itr++) {
             type::Value val = (cur_tuple.GetValue(column_itr));
-            tuple->SetValue(column_itr, val, executor_pool);
+            tuple->SetValue(column_ids_[column_itr], val, executor_pool);
 
           ItemPointer location(tile->GetBaseTile(column_itr)->GetTileId(), tuple_id);
 
           // insert tuple into the table.
           ItemPointer *index_entry_ptr = nullptr;
 
-        target_table_->InsertInIndexes(tuple.get(),location,current_txn,&index_entry_ptr);
+           target_table_->InsertInIndexes(tuple.get(),location,current_txn,&index_entry_ptr);
         }
       }
     }
