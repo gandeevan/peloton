@@ -77,6 +77,8 @@ bool SeqScanExecutor::DInit() {
 bool SeqScanExecutor::DExecute() {
   // Scanning over a logical tile.
   if (children_.size() == 1 &&
+      //There will be a child node on the create index scenario,
+      //but we don't want to use this execution flow
       !(GetRawNode()->GetChildren().size() > 0 &&
         GetRawNode()->GetChildren()[0].get()->GetPlanNodeType() ==
             PlanNodeType::CREATE &&
@@ -116,9 +118,16 @@ bool SeqScanExecutor::DExecute() {
   }
   // Scanning a table
   else if (children_.size() == 0 ||
-           (children_.size() == 1 && GetRawNode()->GetChildren().size() > 0 &&
+           //If we are creating an index, there will be a child
+           (children_.size() == 1 &&
+            //This check is only needed to pass seq_scan_test
+            //unless it is possible to add a executor child
+            //without a corresponding plan.
+            GetRawNode()->GetChildren().size() > 0 &&
+            //Check if the plan is what we actually expect.
             GetRawNode()->GetChildren()[0].get()->GetPlanNodeType() ==
                 PlanNodeType::CREATE &&
+            //If it is, confirm it is for indexes
             ((planner::CreatePlan *)GetRawNode()->GetChildren()[0].get())
                     ->GetCreateType() == CreateType::INDEX)) {
     LOG_TRACE("Seq Scan executor :: 0 child ");
@@ -127,6 +136,9 @@ bool SeqScanExecutor::DExecute() {
     PL_ASSERT(column_ids_.size() > 0);
     if (children_.size() > 0 && !index_done_) {
       children_[0]->Execute();
+      //This stops continuous executions due to
+      //a parent and avoids multiple creations
+      //of the same index.
       index_done_ = true;
     }
     // Force to use occ txn manager if dirty read is forbidden

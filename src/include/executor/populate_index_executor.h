@@ -2,11 +2,11 @@
 //
 //                         Peloton
 //
-// hash_executor.h
+// populate_index_executor.h
 //
-// Identification: src/include/executor/hash_executor.h
+// Identification: src/include/executor/populate_index_executor.h
 //
-// Copyright (c) 2015-16, Carnegie Mellon University Database Group
+// Copyright (c) 2015-17, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 

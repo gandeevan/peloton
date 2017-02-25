@@ -3,9 +3,9 @@
 //
 //                         PelotonDB
 //
-// order_by_plan.cpp
+// populate_index_plan.cpp
 //
-// Identification: /peloton/src/planner/order_by_plan.cpp
+// Identification: /peloton/src/planner/populate_index_plan.cpp
 //
 // Copyright (c) 2015, Carnegie Mellon University Database Group
 //

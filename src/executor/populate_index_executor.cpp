@@ -2,11 +2,11 @@
 //
 //                         Peloton
 //
-// hash_executor.cpp
+// populate_index_executor.cpp
 //
-// Identification: src/executor/hash_executor.cpp
+// Identification: src/executor/populate_index_executor.cpp
 //
-// Copyright (c) 2015-16, Carnegie Mellon University Database Group
+// Copyright (c) 2015-17, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 
@@ -47,7 +47,6 @@ bool PopulateIndexExecutor::DInit() {
   target_table_ = node.GetTable();
   column_ids_ = node.GetColumnIds();
   done_ = false;
-  //  result_itr = 0;
 
   return true;
 }
@@ -58,9 +57,7 @@ bool PopulateIndexExecutor::DExecute() {
   auto current_txn = executor_context_->GetTransaction();
   auto executor_pool = executor_context_->GetPool();
   if (done_ == false) {
-    // LOG_DEBUG("%s", node.GetInfo().c_str());
-
-    // First, get all the input logical tiles
+    //Get the output from seq_scan
     while (children_[0]->Execute()) {
       child_tiles_.emplace_back(children_[0]->GetOutput());
     }
@@ -75,10 +72,7 @@ bool PopulateIndexExecutor::DExecute() {
     std::unique_ptr<storage::Tuple> tuple(
         new storage::Tuple(target_table_schema, true));
 
-    // Go over the logical tile
-
-    // Construct the hash table by going over each child logical tile and
-    // hashing
+    // Go over the logical tile and insert in the index the values
     for (size_t child_tile_itr = 0; child_tile_itr < child_tiles_.size();
          child_tile_itr++) {
       auto tile = child_tiles_[child_tile_itr].get();
@@ -96,7 +90,7 @@ bool PopulateIndexExecutor::DExecute() {
           ItemPointer location(tile->GetBaseTile(column_itr)->GetTileId(),
                                tuple_id);
 
-          // insert tuple into the table.
+          // insert tuple into the index.
           ItemPointer *index_entry_ptr = nullptr;
 
           target_table_->InsertInIndexes(tuple.get(), location, current_txn,
@@ -107,20 +101,7 @@ bool PopulateIndexExecutor::DExecute() {
 
     done_ = true;
   }
-  /*
-    // Return logical tiles one at a time
-    while (result_itr < child_tiles_.size()) {
-      if (child_tiles_[result_itr]->GetTupleCount() == 0) {
-        result_itr++;
-        continue;
-      } else {
-        SetOutput(child_tiles_[result_itr++].release());
-        LOG_TRACE("Hash Executor : true -- return tile one at a time ");
-        return true;
-      }
-    }
-  */
-  LOG_TRACE("Hash Executor : false -- done ");
+  LOG_TRACE("Populate Index Executor : false -- done ");
   return false;
 }
 
