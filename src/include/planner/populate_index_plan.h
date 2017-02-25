@@ -2,11 +2,11 @@
 //
 //                         Peloton
 //
-// order_by_plan.h
+// populate_index_plan.h
 //
-// Identification: src/include/planner/order_by_plan.h
+// Identification: src/include/planner/populate_index_plan.h
 //
-// Copyright (c) 2015-16, Carnegie Mellon University Database Group
+// Copyright (c) 2015-17, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 
@@ -55,16 +55,9 @@ class PopulateIndexPlan : public AbstractPlan {
  private:
   /** @brief Target table. */
   storage::DataTable *target_table_ = nullptr;
+  /** @brief Column Ids. */
   std::vector<oid_t> column_ids_;
-  /** @brief Tuple */
-  //  std::vector<std::unique_ptr<storage::Tuple>> tuples_;
 
-  // <tuple_index, tuple_column_index, parameter_index>
-  // std::unique_ptr<std::vector<std::tuple<oid_t, oid_t, oid_t>>>
-  //    parameter_vector_;
-
-  // Parameter values
-  // std::unique_ptr<std::vector<type::Type::TypeId>> params_value_type_;
 };
 }
 }
