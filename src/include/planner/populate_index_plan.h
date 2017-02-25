@@ -18,7 +18,7 @@ namespace peloton {
 
 namespace storage {
 class DataTable;
-//class Tuple;
+// class Tuple;
 }
 
 namespace planner {
@@ -34,9 +34,12 @@ class PopulateIndexPlan : public AbstractPlan {
   PopulateIndexPlan(const PopulateIndexPlan &&) = delete;
   PopulateIndexPlan &operator=(const PopulateIndexPlan &&) = delete;
 
-  explicit PopulateIndexPlan(storage::DataTable *table, std::vector<oid_t> column_ids);
+  explicit PopulateIndexPlan(storage::DataTable *table,
+                             std::vector<oid_t> column_ids);
 
-  inline PlanNodeType GetPlanNodeType() const { return PlanNodeType::POPULATE_INDEX; }
+  inline PlanNodeType GetPlanNodeType() const {
+    return PlanNodeType::POPULATE_INDEX;
+  }
 
   inline const std::vector<oid_t> &GetColumnIds() const { return column_ids_; }
 
@@ -50,20 +53,18 @@ class PopulateIndexPlan : public AbstractPlan {
   }
 
  private:
-   /** @brief Target table. */
+  /** @brief Target table. */
   storage::DataTable *target_table_ = nullptr;
   std::vector<oid_t> column_ids_;
   /** @brief Tuple */
-//  std::vector<std::unique_ptr<storage::Tuple>> tuples_;
+  //  std::vector<std::unique_ptr<storage::Tuple>> tuples_;
 
   // <tuple_index, tuple_column_index, parameter_index>
- // std::unique_ptr<std::vector<std::tuple<oid_t, oid_t, oid_t>>>
+  // std::unique_ptr<std::vector<std::tuple<oid_t, oid_t, oid_t>>>
   //    parameter_vector_;
 
   // Parameter values
-  //std::unique_ptr<std::vector<type::Type::TypeId>> params_value_type_;
-
+  // std::unique_ptr<std::vector<type::Type::TypeId>> params_value_type_;
 };
 }
 }
-
