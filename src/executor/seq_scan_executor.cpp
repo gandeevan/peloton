@@ -116,9 +116,10 @@ bool SeqScanExecutor::DExecute() {
 
     PL_ASSERT(target_table_ != nullptr);
     PL_ASSERT(column_ids_.size() > 0);
-    if (children_.size() > 0)
+    if (children_.size() > 0 && !index_done_)
     {
-        while(children_[0]->Execute());
+        children_[0]->Execute();
+        index_done_ = true;
     }
     // Force to use occ txn manager if dirty read is forbidden
     concurrency::TransactionManager &transaction_manager =
