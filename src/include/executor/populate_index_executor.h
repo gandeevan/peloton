@@ -10,7 +10,6 @@
 //
 //===----------------------------------------------------------------------===//
 
-
 #pragma once
 
 #include <unordered_map>
@@ -25,7 +24,6 @@
 namespace peloton {
 namespace executor {
 
-
 class PopulateIndexExecutor : public AbstractExecutor {
  public:
   PopulateIndexExecutor(const PopulateIndexExecutor &) = delete;
@@ -34,7 +32,7 @@ class PopulateIndexExecutor : public AbstractExecutor {
   PopulateIndexExecutor &operator=(const PopulateIndexExecutor &&) = delete;
 
   explicit PopulateIndexExecutor(const planner::AbstractPlan *node,
-                        ExecutorContext *executor_context);
+                                 ExecutorContext *executor_context);
   inline storage::DataTable *GetTable() const { return target_table_; }
 
  protected:
