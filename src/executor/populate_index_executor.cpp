@@ -86,16 +86,15 @@ bool PopulateIndexExecutor::DExecute() {
              column_itr++) {
           type::Value val = (cur_tuple.GetValue(column_itr));
           tuple->SetValue(column_ids_[column_itr], val, executor_pool);
-
-          ItemPointer location(tile->GetBaseTile(column_itr)->GetTileId(),
-                               tuple_id);
-
-          // insert tuple into the index.
-          ItemPointer *index_entry_ptr = nullptr;
-
-          target_table_->InsertInIndexes(tuple.get(), location, current_txn,
-                                         &index_entry_ptr);
         }
+
+        ItemPointer location(tile->GetBaseTile(0)->GetTileGroup()->GetTileGroupId(),
+                             tuple_id);
+
+        // insert tuple into the index.
+        ItemPointer *index_entry_ptr = nullptr;
+        target_table_->InsertInIndexes(tuple.get(), location, current_txn,
+                                       &index_entry_ptr);
       }
     }
 
