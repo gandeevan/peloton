@@ -72,6 +72,12 @@ class ValuesRuntimeProxy {
     static const std::string &GetFunctionName();
     static llvm::Function *GetFunction(CodeGen &codegen);
   };
+
+  // The proxy around ValuesRuntime::OutputBoolean()
+  struct _OutputBoolean {
+    static const std::string &GetFunctionName();
+    static llvm::Function *GetFunction(CodeGen &codegen);
+  };
 };
 
 }  // namespace codegen

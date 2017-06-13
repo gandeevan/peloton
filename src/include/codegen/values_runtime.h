@@ -44,6 +44,9 @@ class ValuesRuntime {
   // Write out the given varbinary value into the array at the provided index
   static void OutputVarbinary(char *values, uint32_t idx, char *str,
                               uint32_t len);
+  // Write out the given boolean value into the array at the provided index
+  static void OutputBoolean(char *values, uint32_t idx, bool val);
+
 
   static int32_t CompareStrings(const char *str1, uint32_t len1,
                                 const char *str2, uint32_t len2);

@@ -41,12 +41,15 @@ std::unique_ptr<Query> QueryCompiler::Compile(
 }
 
 bool QueryCompiler::IsSupported(const planner::AbstractPlan &plan) {
-  return QueryCompiler::IsSupported(plan, nullptr);
+    //plan.GetInfo();
+    //return false;
+    return QueryCompiler::IsSupported(plan, nullptr);
 }
 
 // Check if the given query can be compiled. This search is not exhaustive ...
 bool QueryCompiler::IsSupported(const planner::AbstractPlan &plan,
                                 const planner::AbstractPlan *parent) {
+
   switch (plan.GetPlanNodeType()) {
     case PlanNodeType::SEQSCAN:
     case PlanNodeType::PROJECTION:

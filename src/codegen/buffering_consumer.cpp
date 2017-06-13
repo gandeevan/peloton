@@ -157,6 +157,13 @@ void BufferingConsumer::ConsumeResult(ConsumerContext &ctx,
              val.GetLength()});
         break;
       }
+      case type::Type::TypeId::BOOLEAN: {
+         codegen.CallFunc(
+            ValuesRuntimeProxy::_OutputBoolean::GetFunction(codegen),
+            {tuple_buffer_, codegen.Const64(i), val.GetValue(),
+            val.GetLength()});
+        break;
+      }
       default: {
         std::string msg =
             StringUtil::Format("Can't serialize value type '%s' at position %u",

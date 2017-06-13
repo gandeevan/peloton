@@ -49,6 +49,11 @@ void ValuesRuntime::OutputDecimal(char *values, uint32_t idx, double val) {
   vals[idx] = type::ValueFactory::GetDecimalValue(val);
 }
 
+void ValuesRuntime::OutputBoolean(char *values, uint32_t idx, bool val) {
+  type::Value *vals = reinterpret_cast<type::Value *>(values);
+  vals[idx] = type::ValueFactory::GetBooleanValue(val);
+}
+
 void ValuesRuntime::OutputVarchar(char *values, uint32_t idx, char *str,
                                   UNUSED_ATTRIBUTE uint32_t len) {
   type::Value *vals = reinterpret_cast<type::Value *>(values);
