@@ -43,6 +43,9 @@ const std::string SQLStatement::GetInfo() const {
     case StatementType::SELECT:
       GetSelectStatementInfo((SelectStatement*)this, indent);
       break;
+    case StatementType::ALTER:
+      GetAlterStatementInfo((AlterStatement*)this, indent);
+      break;
     case StatementType::INSERT:
       GetInsertStatementInfo((InsertStatement*)this, indent);
       break;

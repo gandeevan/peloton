@@ -330,6 +330,18 @@ typedef struct CreateStmt
   bool    if_not_exists;  /* just do nothing if it already exists? */
 } CreateStmt;
 
+
+typedef struct AlterStmt
+{
+  NodeTag   type;
+  RangeVar   *relation;   /* relation to alter */
+  List     *tableElts;    /* column definitions (list of ColumnDef) */
+  TypeName   *ofTypename;   /* OF typename */
+  bool       addCol;       // true if adding column, false if dropping
+  List     *constraints;  /* constraints (list of Constraint nodes) */
+  OnCommitAction oncommit;  /* what do we do at COMMIT? */
+} AlterStmt;
+
 typedef enum ConstrType			/* types of constraints */
 {
   CONSTR_NULL,				/* not standard SQL, but a lot of people

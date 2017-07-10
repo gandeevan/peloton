@@ -918,6 +918,39 @@ parser::SQLStatement* PostgresParser::CreateIndexTransform(IndexStmt* root) {
   return result;
 }
 
+// This function takes in a Postgres AlterStmt parsenode
+// and transfers into a Peloton AlterStatement parsenode.
+// Please refer to parser/parsenode.h for the definition of
+// AlterStmt parsenodes.
+parser::SQLStatement* PostgresParser::AddColumnTransform(AlterStmt* root) {
+    //UNUSED_ATTRIBUTE CreateStmt* temp = root;
+    parser::AlterStatement* result =
+        new AlterStatement(AlterStatement::AlterType::kAddColumn);
+    RangeVar* relation = root->relation;
+    result->table_info_ = new parser::TableInfo();
+
+    if (relation->relname) {
+      result->table_info_->table_name = cstrdup(relation->relname);
+    }
+
+    if (root->tableElts->length > 0) {
+      result->columns = new std::vector<ColumnDefinition*>();
+    }
+
+    for (auto cell = root->tableElts->head; cell != nullptr; cell = cell->next) {
+      Node* node = reinterpret_cast<Node*>(cell->data.ptr_value);
+      if ((node->type) == T_ColumnDef) {
+        // Transform Regular Column
+        ColumnDefinition* temp =
+            ColumnDefTransform(reinterpret_cast<ColumnDef*>(node));
+        result->columns->push_back(temp);
+      }
+    }
+    return reinterpret_cast<parser::SQLStatement*>(result);
+
+
+}
+
 // This function takes in a Postgres CreatedbStmt parsenode
 // and transfers into a Peloton CreateStatement parsenode.
 // Please refer to parser/parsenode.h for the definition of
@@ -1169,6 +1202,9 @@ parser::TransactionStatement* PostgresParser::TransactionTransform(
 parser::SQLStatement* PostgresParser::NodeTransform(Node* stmt) {
   parser::SQLStatement* result = nullptr;
   switch (stmt->type) {
+    case T_AlterTableStmt:
+      result = AddColumnTransform(reinterpret_cast<AlterStmt*>(stmt));
+      break;
     case T_SelectStmt:
       result = SelectTransform(reinterpret_cast<SelectStmt*>(stmt));
       break;
