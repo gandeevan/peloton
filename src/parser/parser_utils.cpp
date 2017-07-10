@@ -234,6 +234,30 @@ void GetCreateStatementInfo(CreateStatement* stmt, uint num_indent) {
   }
 }
 
+void GetAlterStatementInfo(AlterStatement* stmt, uint num_indent) {
+  inprint("AlterStatment", num_indent);
+  inprintU(stmt->type, num_indent + 1);
+
+  if (stmt->type == AlterStatement::AlterType::kAddColumn) {
+    std::cout << indent(num_indent);
+    printf("AddColumn : table : %s unique : %d attrs : ",
+           stmt->GetTableName().c_str(), stmt->unique);
+    printf("\n");
+  }
+
+  if (stmt->columns != nullptr) {
+    for (ColumnDefinition* col : *(stmt->columns)) {
+      std::cout << indent(num_indent);
+        printf(
+            "-> COLUMN REF : %s %d not null : %d primary : %d unique %d varlen "
+            "%lu \n",
+            col->name, col->type, col->not_null, col->primary, col->unique,
+            col->varlen);
+      }
+    }
+  }
+
+
 void GetInsertStatementInfo(InsertStatement* stmt, uint num_indent) {
   inprint("InsertStatment", num_indent);
   inprint(stmt->GetTableName().c_str(), num_indent + 1);

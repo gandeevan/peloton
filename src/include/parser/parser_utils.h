@@ -13,6 +13,7 @@
 #pragma once
 
 #include "parser/statements.h"
+#include "parser/alter_statement.h"
 #include "expression/abstract_expression.h"
 #include "type/types.h"
 
@@ -23,6 +24,7 @@ void GetSelectStatementInfo(SelectStatement* stmt, uint num_indent);
 void GetInsertStatementInfo(InsertStatement* stmt, uint num_indent);
 void GetCreateStatementInfo(CreateStatement* stmt, uint num_indent);
 void GetDeleteStatementInfo(DeleteStatement* stmt, uint num_indent);
+void GetAlterStatementInfo(AlterStatement* stmt, uint num_indent);
 void GetExpressionInfo(const expression::AbstractExpression* expr,
                        uint num_indent);
 std::string CharsToStringDestructive(char * str);

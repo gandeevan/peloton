@@ -13,6 +13,7 @@
 #pragma once
 
 #include "parser/statements.h"
+#include "parser/alter_statement.h"
 #include "parser/pg_query.h"
 #include "parser/parsenodes.h"
 
@@ -162,6 +163,12 @@ class PostgresParser {
 
   // transform helper for create index statements
   static parser::SQLStatement* CreateIndexTransform(IndexStmt* root);
+
+  // transform helper for alter table add statements
+  static parser::SQLStatement* AddColumnTransform(AlterStmt* root);
+
+  // transform helper for alter table add statements
+  static parser::SQLStatement* DropColumnTransform(AlterStmt* root);
 
   // transform helper for create db statement
   static parser::SQLStatement* CreateDbTransform(CreatedbStmt* root);
