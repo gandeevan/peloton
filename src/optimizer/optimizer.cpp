@@ -35,6 +35,7 @@
 #include "planner/drop_plan.h"
 #include "planner/populate_index_plan.h"
 #include "planner/analyze_plan.h"
+#include "planner/alter_plan.h"
 
 #include "binder/bind_node_visitor.h"
 
@@ -139,6 +140,13 @@ unique_ptr<planner::AbstractPlan> Optimizer::HandleDDLStatement(
       break;
     } 
 
+    case StatementType::ALTER: {
+      LOG_TRACE("Adding Alter plan...");
+      unique_ptr<planner::AbstractPlan> alter_plan(
+          new planner::AlterPlan((parser::AlterStatement *)tree));
+      ddl_plan = move(alter_plan);
+      break;
+    }
     case StatementType::CREATE: {
       LOG_TRACE("Adding Create plan...");
 
