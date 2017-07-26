@@ -777,9 +777,10 @@ ResultType TimestampOrderingTransactionManager::CommitTransaction(
   //////////////////////////////////////////////////////////
 
   auto &manager = catalog::Manager::GetInstance();
-  auto &log_manager = logging::LogManager::GetInstance();
+  auto &log_manager = logging::ReorderedPhyLogLogManager::GetInstance();
 
-  log_manager.StartLogging();
+  log_manager.StartTxn(current_txn);
+  log_manager.StartPersistTxn();
   
   // generate transaction id.
   cid_t end_commit_id = current_txn->GetCommitId();
@@ -918,8 +919,7 @@ ResultType TimestampOrderingTransactionManager::CommitTransaction(
 
   ResultType result = current_txn->GetResult();
 
-  log_manager.LogEnd();
-
+log_manager.EndPersistTxn();
   EndTransaction(current_txn);
 
   // Increment # txns committed metric

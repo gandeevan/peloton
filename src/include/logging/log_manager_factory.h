@@ -13,7 +13,8 @@
 #pragma once
 
 #include "logging/log_manager.h"
-#include "logging/logical_log_manager.h"
+#include "logging/reordered_phylog_log_manager.h"
+#include "logging/dummy_log_manager.h"
 
 namespace peloton {
 namespace logging {
@@ -25,10 +26,10 @@ class LogManagerFactory {
     switch (logging_type_) {
 
       case LoggingType::ON:
-        return LogicalLogManager::GetInstance(logging_thread_count_);
+        return ReorderedPhyLogLogManager::GetInstance();
       
       default:
-        return LogManager::GetInstance();
+        return DummyLogManager::GetInstance();
     }
   }
 

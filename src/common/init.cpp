@@ -21,6 +21,7 @@
 #include "concurrency/epoch_manager_factory.h"
 #include "gc/gc_manager_factory.h"
 #include "storage/data_table.h"
+#include "logging/reordered_phylog_log_manager.h"
 
 #include <google/protobuf/stubs/common.h>
 
@@ -46,6 +47,14 @@ void PelotonInit::Initialize() {
 
   // start epoch.
   concurrency::EpochManagerFactory::GetInstance().StartEpoch();
+
+
+
+  //start recovery
+  //auto logger = new logging::ReorderedPhyLogLogger(1, "/home/paulo/log");
+  //logger->StartLogging();
+  logging::ReorderedPhyLogLogManager::GetInstance().SetDirectories({"/home/paulo/log"});
+  logging::ReorderedPhyLogLogManager::GetInstance().RegisterWorker();
 
   // start GC.
   gc::GCManagerFactory::GetInstance().StartGC();

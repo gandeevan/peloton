@@ -922,6 +922,20 @@ typedef enum LayoutType {
   LAYOUT_TYPE_HYBRID = 3  /* Hybrid layout */
 } LayoutType;
 
+enum CheckpointType {
+  CHECKPOINT_TYPE_INVALID = 0,
+  CHECKPOINT_TYPE_PHYLOG = 1,
+  CHECKPOINT_TYPE_PHYSICAL = 2,
+};
+
+
+
+enum TimerType {
+  TIMER_OFF = 0,
+  TIMER_SUMMARY,
+  TIMER_DISTRIBUTION,
+};
+
 //===--------------------------------------------------------------------===//
 // Statistics Types
 //===--------------------------------------------------------------------===//
