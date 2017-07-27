@@ -164,54 +164,31 @@ namespace logging {
   struct WorkerContext {
 
     WorkerContext(oid_t id)
-      : per_epoch_buffer_ptrs(5),
-        buffer_pool(id), 
+      : buffer_pool(id),
         output_buffer(),
-        current_commit_eid(99999),
-        persist_eid(0),
-        reported_eid(100000),
         current_cid(100000),
         worker_id(id),
-        transaction_worker_id(1000000000000),
         cur_txn_start_time(0),
         pending_txn_timers()
      {
       LOG_TRACE("Create worker %d", (int) worker_id);
       //PL_ASSERT(concurrency::tl_txn_worker_id != 1000000000000);
-      transaction_worker_id = 1;//concurrency::tl_txn_worker_id;
+      //transaction_worker_id = 1;//concurrency::tl_txn_worker_id;
     }
 
     ~WorkerContext() {
       LOG_TRACE("Destroy worker %d", (int) worker_id);
     }
 
-
-    // Every epoch has a buffer stack
-    // TODO: Remove this, workers should push the buffer to the logger. -- Jiexi
-    std::vector<std::stack<std::unique_ptr<LogBuffer>>> per_epoch_buffer_ptrs;
-
     // each worker thread has a buffer pool. each buffer pool contains 16 log buffers.
     LogBufferPool buffer_pool;
     // serialize each tuple to string.
     CopySerializeOutput output_buffer;
 
-    // current epoch id
-    size_t current_commit_eid;
-    // persisted epoch id
-    // TODO: Move this to logger -- Jiexi
-    size_t persist_eid;
-    // reported epoch id
-    size_t reported_eid;
-
     // current transaction id
     cid_t current_cid;
-
     // worker thread id
     oid_t worker_id;
-    // transaction worker id from the epoch manager's point of view
-    size_t transaction_worker_id;
-
-    /* Statistics */
 
     // XXX: Simulation of early lock release
     uint64_t cur_txn_start_time;

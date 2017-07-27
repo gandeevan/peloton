@@ -74,32 +74,26 @@ public:
   }
   virtual ~ReorderedPhyLogLogManager() {}
 
-  virtual void SetDirectories(const std::vector<std::string> &logging_dirs) override {
-    logger_dirs_ = logging_dirs;
+  virtual void SetDirectory(const std::string logging_dir) {
+    logger_dir_ = logging_dir;
 
-    if (logging_dirs.size() > 0) {
-      pepoch_dir_ = logging_dirs.at(0);
-    }
     // check the existence of logging directories.
     // if not exists, then create the directory.
-    for (auto logging_dir : logging_dirs) {
-      if (LoggingUtil::CheckDirectoryExistence(logging_dir.c_str()) == false) {
-        LOG_INFO("Logging directory %s is not accessible or does not exist", logging_dir.c_str());
-        bool res = LoggingUtil::CreateDirectory(logging_dir.c_str(), 0700);
+    if (LoggingUtil::CheckDirectoryExistence(logger_dir_.c_str()) == false) {
+        LOG_INFO("Logging directory %s is not accessible or does not exist", logger_dir_.c_str());
+        bool res = LoggingUtil::CreateDirectory(logger_dir_.c_str(), 0700);
         if (res == false) {
-          LOG_ERROR("Cannot create directory: %s", logging_dir.c_str());
+          LOG_ERROR("Cannot create directory: %s", logger_dir_.c_str());
+          //throw new Exception();
         }
       }
+
+    logger_count_ = 1;
+      loggers_.emplace_back(new ReorderedPhyLogLogger(0, logger_dir_));
     }
 
-    logger_count_ = logging_dirs.size();
-    for (size_t i = 0; i < logger_count_; ++i) {
-      loggers_.emplace_back(new ReorderedPhyLogLogger(i, logging_dirs.at(i)));
-    }
-  }
-
-  virtual const std::vector<std::string> &GetDirectories() override {
-    return logger_dirs_;
+  virtual const std::string GetDirectory() {
+    return logger_dir_;
   }
 
   // Worker side logic
@@ -112,35 +106,35 @@ public:
   void LogUpdate(const ItemPointer &tuple_pos);
   void LogDelete(const ItemPointer &tuple_pos_deleted);
 
-  void StartPersistTxn();
-  void EndPersistTxn();
+  void StartPersistTxn(concurrency::Transaction *txn);
+  void EndPersistTxn(concurrency::Transaction *txn);
 
 
   // Logger side logic
-  virtual void DoRecovery(const size_t &begin_eid) override;
+//  virtual void DoRecovery(const size_t &begin_eid) override;
   virtual void StartLoggers() override;
   virtual void StopLoggers() override;
 
-  void RunPepochLogger();
+//  void RunPepochLogger();
 
 private:
-  size_t RecoverPepoch();
+//  size_t RecoverPepoch();
 
   void WriteRecordToBuffer(LogRecord &record);
 
 private:
   std::atomic<oid_t> worker_count_;
 
-  std::vector<std::string> logger_dirs_;
+  std::string logger_dir_;
 
   std::vector<std::shared_ptr<ReorderedPhyLogLogger>> loggers_;
 
-  std::unique_ptr<std::thread> pepoch_thread_;
+ // std::unique_ptr<std::thread> pepoch_thread_;
   volatile bool is_running_;
 
-  std::string pepoch_dir_;
+  //std::string pepoch_dir_;
 
-  const std::string pepoch_filename_ = "pepoch";
+  //const std::string pepoch_filename_ = "pepoch";
 };
 
 }

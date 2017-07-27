@@ -53,8 +53,10 @@ void PelotonInit::Initialize() {
   //start recovery
   //auto logger = new logging::ReorderedPhyLogLogger(1, "/home/paulo/log");
   //logger->StartLogging();
-  logging::ReorderedPhyLogLogManager::GetInstance().SetDirectories({"/home/paulo/log"});
+
+  logging::ReorderedPhyLogLogManager::GetInstance().SetDirectory({"/home/paulo/log"});
   logging::ReorderedPhyLogLogManager::GetInstance().RegisterWorker();
+  logging::ReorderedPhyLogLogManager::GetInstance().StartLoggers();
 
   // start GC.
   gc::GCManagerFactory::GetInstance().StartGC();
@@ -86,6 +88,7 @@ void PelotonInit::Initialize() {
   pg_catalog->CreateDatabase(DEFAULT_DB_NAME, txn);
 
   txn_manager.CommitTransaction(txn);
+
 }
 
 void PelotonInit::Shutdown() {

@@ -22,31 +22,24 @@ namespace logging {
 
   void LogManager::StartTxn(concurrency::Transaction *txn) {
     PL_ASSERT(tl_worker_ctx);
-    size_t txn_eid = txn->GetEpochId();
+ //   size_t txn_id = txn->GetTransactionId();
 
     // Record the txn timer
-    DurabilityFactory::StartTxnTimer(txn_eid, tl_worker_ctx);
+//    DurabilityFactory::StartTxnTimer(txn_eid, tl_worker_ctx);
 
-    PL_ASSERT(tl_worker_ctx->current_commit_eid == 999 || tl_worker_ctx->current_commit_eid <= txn_eid); //MAX_EPOCH_ID
+//    PL_ASSERT(tl_worker_ctx->current_commit_eid == 999 || tl_worker_ctx->current_commit_eid <= txn_eid); //MAX_EPOCH_ID
 
-    // Handle the epoch id
-    if (tl_worker_ctx->current_commit_eid == 999999//INVALID_EPOCH_ID
-      || tl_worker_ctx->current_commit_eid != txn_eid) {
-      // if this is a new epoch, then write to a new buffer
-      tl_worker_ctx->current_commit_eid = txn_eid;
-      RegisterNewBufferToEpoch(std::move(tl_worker_ctx->buffer_pool.GetBuffer(txn_eid)));
-    }
 
     // Handle the commit id
     cid_t txn_cid = txn->GetCommitId();
     tl_worker_ctx->current_cid = txn_cid;
   }
 
-  void LogManager::FinishPendingTxn() {
-    PL_ASSERT(tl_worker_ctx);
-    size_t glob_peid = global_persist_epoch_id_.load();
-    DurabilityFactory::StopTimersByPepoch(glob_peid, tl_worker_ctx);
-  }
+//  void LogManager::FinishPendingTxn() {
+//    PL_ASSERT(tl_worker_ctx);
+//    size_t glob_peid = global_persist_epoch_id_.load();
+//    DurabilityFactory::StopTimersByPepoch(glob_peid, tl_worker_ctx);
+//  }
 
   /*void LogManager::MarkTupleCommitEpochId(storage::TileGroupHeader *tg_header, oid_t tuple_slot) {
     if (DurabilityFactory::GetLoggingType() == LoggingType::INVALID) {

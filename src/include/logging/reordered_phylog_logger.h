@@ -52,7 +52,6 @@ public:
     logger_thread_(nullptr),
     is_running_(false),
     logger_output_buffer_(),
-    persist_epoch_id_(9999999),
     worker_map_lock_(),
     worker_map_() {}
 
@@ -77,16 +76,14 @@ public:
   void RegisterWorker(WorkerContext *phylog_worker_ctx);
   void DeregisterWorker(WorkerContext *phylog_worker_ctx);
 
-  size_t GetPersistEpochId() const {
-    return persist_epoch_id_;
-  }
+
 
 
 private:
   void Run();
 
-  void PersistEpochBegin(FileHandle &file_handle, const size_t epoch_id);
-  void PersistEpochEnd(FileHandle &file_handle, const size_t epoch_id);
+  //void PersistEpochBegin(FileHandle &file_handle, const size_t epoch_id);
+  //void PersistEpochEnd(FileHandle &file_handle, const size_t epoch_id);
   void PersistLogBuffer(FileHandle &file_handle, std::unique_ptr<LogBuffer> log_buffer);
 
   std::string GetLogFileFullPath(size_t epoch_id) {
@@ -95,14 +92,14 @@ private:
 
   void GetSortedLogFileIdList(const size_t checkpoint_eid, const size_t persist_eid);
 
-  void RunRecoveryThread(const size_t thread_id, const size_t checkpoint_eid, const size_t persist_eid);
+  //void RunRecoveryThread(const size_t thread_id, const size_t checkpoint_eid, const size_t persist_eid);
 
 //  void RunSecIndexRebuildThread(const size_t logger_count);
 
  // void RebuildSecIndexForTable(const size_t logger_count, storage::DataTable *table);
 
-  bool ReplayLogFile(const size_t thread_id, FileHandle &file_handle, size_t checkpoint_eid, size_t pepoch_eid);
-  bool InstallTupleRecord(LogRecordType type, storage::Tuple *tuple, storage::DataTable *table, cid_t cur_cid);
+  //bool ReplayLogFile(const size_t thread_id, FileHandle &file_handle, size_t checkpoint_eid, size_t pepoch_eid);
+//  bool InstallTupleRecord(LogRecordType type, storage::Tuple *tuple, storage::DataTable *table, cid_t cur_cid);
 
   // Return value is the swapped txn id, either INVALID_TXNID or INITIAL_TXNID
   txn_id_t LockTuple(storage::TileGroupHeader *tg_header, oid_t tuple_offset);
@@ -130,7 +127,7 @@ private:
   CopySerializeOutput logger_output_buffer_;
 
   /* Log buffers */
-  size_t persist_epoch_id_;
+ // size_t persist_epoch_id_;
 
   // The spin lock to protect the worker map. We only update this map when creating/terminating a new worker
   Spinlock worker_map_lock_;

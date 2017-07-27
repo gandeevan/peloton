@@ -39,35 +39,35 @@ namespace logging {
     itr->second.emplace_back(cur_time_usec);
   }
 
-  void DurabilityFactory::StopTimersByPepoch(size_t persist_eid, WorkerContext *worker_ctx) {
-    if (DurabilityFactory::GetTimerType() == TIMER_OFF) return;
+//  void DurabilityFactory::StopTimersByPepoch(size_t persist_eid, WorkerContext *worker_ctx) {
+//    if (DurabilityFactory::GetTimerType() == TIMER_OFF) return;
 
-    if (persist_eid == worker_ctx->reported_eid) {
-      return;
-    }
+//    if (persist_eid == worker_ctx->reported_eid) {
+//      return;
+//    }
 
-    uint64_t commit_time_usec = GetCurrentTimeInUsec();
-    auto upper_itr = worker_ctx->pending_txn_timers.upper_bound(persist_eid);
-    auto itr = worker_ctx->pending_txn_timers.begin();
-    while (itr != upper_itr) {
-      uint64_t sum = 0;
-      size_t count = 0;
+//    uint64_t commit_time_usec = GetCurrentTimeInUsec();
+//    auto upper_itr = worker_ctx->pending_txn_timers.upper_bound(persist_eid);
+//    auto itr = worker_ctx->pending_txn_timers.begin();
+//    while (itr != upper_itr) {
+//      uint64_t sum = 0;
+//      size_t count = 0;
 
-      for (uint64_t txn_start_us : itr->second) {
-        PL_ASSERT(commit_time_usec > txn_start_us);
-        auto lat = commit_time_usec - txn_start_us;
-       // worker_ctx->txn_summary.AddTxnLatReport(lat, (timer_type_ == TIMER_DISTRIBUTION));
-        sum += lat;
-        count += 1;
-      }
+//      for (uint64_t txn_start_us : itr->second) {
+//        PL_ASSERT(commit_time_usec > txn_start_us);
+//        auto lat = commit_time_usec - txn_start_us;
+//       // worker_ctx->txn_summary.AddTxnLatReport(lat, (timer_type_ == TIMER_DISTRIBUTION));
+//        sum += lat;
+//        count += 1;
+//      }
 
-      if (generate_detailed_csv_ == true) {
-        //worker_ctx->txn_summary.AddEpochLatReport(sum, count);
-      }
+//      if (generate_detailed_csv_ == true) {
+//        //worker_ctx->txn_summary.AddEpochLatReport(sum, count);
+//      }
 
-      itr = worker_ctx->pending_txn_timers.erase(itr);
-    }
-    worker_ctx->reported_eid = persist_eid;
-  }
+//      itr = worker_ctx->pending_txn_timers.erase(itr);
+//    }
+//    worker_ctx->reported_eid = persist_eid;
+//  }
 }
 }
