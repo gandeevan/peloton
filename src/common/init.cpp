@@ -22,6 +22,7 @@
 #include "concurrency/transaction_manager_factory.h"
 #include "gc/gc_manager_factory.h"
 #include "settings/settings_manager.h"
+#include "resource_tracking/resource_tracker.h"
 
 namespace peloton {
 
@@ -35,9 +36,9 @@ void PelotonInit::Initialize() {
   MAX_CONCURRENCY = 10;
 
   // set max thread number.
-  thread_pool.Initialize(0, std::thread::hardware_concurrency() + 3);
+  thread_pool.Initialize(0, std::thread::hardware_concurrency() + 4);
 
-  int parallelism = (std::thread::hardware_concurrency() + 3) / 4;
+  int parallelism = (std::thread::hardware_concurrency() + 4) / 4;
   storage::DataTable::SetActiveTileGroupCount(parallelism);
   storage::DataTable::SetActiveIndirectionArrayCount(parallelism);
 
@@ -46,6 +47,8 @@ void PelotonInit::Initialize() {
 
   // start GC.
   gc::GCManagerFactory::GetInstance().StartGC();
+
+  ltm::ResourceTracker::GetInstance().StartRT();
 
   // start index tuner
   if (settings::SettingsManager::GetBool(settings::SettingId::index_tuner)) {

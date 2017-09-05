@@ -106,6 +106,7 @@ class TileGroupHeader : public Printable {
     }
   }
 
+  void EvictTileGroup();
   /**
    * Used by logging
    */
@@ -214,6 +215,14 @@ class TileGroupHeader : public Printable {
         indirection;
   }
 
+  inline bool IsEvicted() {
+    return evicted_
+  }
+
+  inline void SetEvicted(bool value) {
+    evicted_ = value;
+  }
+
   inline txn_id_t SetAtomicTransactionId(const oid_t &tuple_slot_id,
                                          const txn_id_t &old_txn_id,
                                          const txn_id_t &new_txn_id) const {
@@ -279,6 +288,8 @@ class TileGroupHeader : public Printable {
 
   // number of tuple slots allocated
   oid_t num_tuple_slots;
+
+  bool evicted_;
 
   // next free tuple slot
   // WARNING: this variable may not be the right boundary of the tile
