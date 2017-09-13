@@ -244,7 +244,7 @@ void TransactionLevelGCManager::AddToRecycleMap(
 
 // this function returns a free tuple slot, if one exists
 // called by data_table.
-ItemPointer TransactionLevelGCManager::ReturnFreeSlot(const oid_t &table_id) {
+ItemPointer TransactionLevelGCManager::ReturnFreeSlot(const oid_t &table_id UNUSED_ATTRIBUTE) {
   // for catalog tables, we directly return invalid item pointer.
   if (recycle_queue_map_.find(table_id) == recycle_queue_map_.end()) {
     return INVALID_ITEMPOINTER;
@@ -257,7 +257,7 @@ ItemPointer TransactionLevelGCManager::ReturnFreeSlot(const oid_t &table_id) {
     LOG_TRACE("Reuse tuple(%u, %u) in table %u", location.block,
               location.offset, table_id);
     return location;
-  }
+  } 
   return INVALID_ITEMPOINTER;
 }
 

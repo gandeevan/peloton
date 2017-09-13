@@ -188,7 +188,7 @@ ResultType TrafficCop::ExecuteStatement(
         LOG_TRACE("Statement executed. Result: %s",
                   ResultTypeToString(status.m_result).c_str());
         rows_changed = status.m_processed;
-        LOG_DEBUG("rows_changed %d", rows_changed);
+//        LOG_DEBUG("rows_changed %d", rows_changed);
         return status.m_result;
     }
   } catch (Exception &e) {

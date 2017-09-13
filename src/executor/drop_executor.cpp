@@ -18,6 +18,11 @@
 #include "concurrency/transaction.h"
 #include "executor/executor_context.h"
 #include "planner/drop_plan.h"
+#include "storage/database.h"
+#include "storage/data_table.h"
+#include "storage/tile_group.h"
+#include "storage/storage_manager.h"
+
 
 namespace peloton {
 namespace executor {
@@ -40,6 +45,18 @@ bool DropExecutor::DInit() {
 
 bool DropExecutor::DExecute() {
   LOG_TRACE("Executing Drop...");
+  auto storage_manager = storage::StorageManager::GetInstance();
+  auto database = storage_manager->GetDatabaseWithOid(16777316);
+
+  for (oid_t i = 0; i < database->GetTableCount(); i++){
+      auto table = database->GetTable(i);
+      LOG_DEBUG("Table: %s, iterating through tilegroups", table->GetName().c_str());
+      for (oid_t j = 0; j < table->GetTileGroupCount(); j++){
+          auto tile_group = table->GetTileGroup(j);
+          LOG_DEBUG("Tilegroup %d: %d active tuples of %d total tuples", j, tile_group->GetActiveTupleCount(), tile_group->GetAllocatedTupleCount());
+      }
+  }
+/*
   const planner::DropPlan &node = GetPlanNode<planner::DropPlan>();
   DropType dropType = node.GetDropType();
   switch (dropType) {
@@ -99,6 +116,7 @@ bool DropExecutor::DExecute() {
           StringUtil::Format("Drop type %d not supported yet.\n", dropType));
     }
   }
+  */
 
   return false;
 }
