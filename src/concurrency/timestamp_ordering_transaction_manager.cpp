@@ -19,6 +19,9 @@
 #include "concurrency/transaction.h"
 #include "gc/gc_manager_factory.h"
 #include "settings/settings_manager.h"
+#include "logging/log_record.h"
+
+#include "threadpool/logger_queue_pool.h"
 
 namespace peloton {
 namespace concurrency {
@@ -735,7 +738,7 @@ void TimestampOrderingTransactionManager::PerformDelete(
 }
 
 ResultType TimestampOrderingTransactionManager::CommitTransaction(
-    Transaction *const current_txn) {
+    Transaction *const current_txn, logging::WalLogManager* log_manager) {
   LOG_TRACE("Committing peloton txn : %lu ", current_txn->GetTransactionId());
 
   //////////////////////////////////////////////////////////
@@ -751,7 +754,7 @@ ResultType TimestampOrderingTransactionManager::CommitTransaction(
   //////////////////////////////////////////////////////////
 
   auto &manager = catalog::Manager::GetInstance();
-  auto &log_manager = logging::WalLogManager::GetInstance();
+  //auto &log_manager = logging::WalLogManager::GetInstance();
 
   cid_t end_commit_id = current_txn->GetCommitId();
   eid_t epoch_id = current_txn->GetEpochId();
@@ -828,8 +831,8 @@ ResultType TimestampOrderingTransactionManager::CommitTransaction(
         // add old version into gc set.
         // may need to delete versions from secondary indexes.
         gc_set->operator[](tile_group_id)[tuple_slot] = GCVersionType::COMMIT_UPDATE;
-        LogRecord record = LogRecordFactory::CreateTupleRecord(LogRecordType::TUPLE_INSERT, new_version, end_commit_id, epoch_id);
-        record.SetOldVersion(old_version);
+        logging::LogRecord record = logging::LogRecordFactory::CreateTupleRecord(LogRecordType::TUPLE_INSERT, new_version, end_commit_id, epoch_id);
+        record.SetOldItemPointer(old_version);
         current_txn->log_records_.push_back(record);
       } else if (tuple_entry.second == RWType::DELETE) {
         ItemPointer new_version =
@@ -860,7 +863,7 @@ ResultType TimestampOrderingTransactionManager::CommitTransaction(
         // recycle old version, delete from index
         // the gc should be responsible for recycling the newer empty version.
         gc_set->operator[](tile_group_id)[tuple_slot] = GCVersionType::COMMIT_DELETE;
-        LogRecord record = LogRecordFactory::CreateTupleRecord(LogRecordType::TUPLE_DELETE, ItemPointer(tile_group_id, tuple_slot),end_commit_id, epoch_id);
+        logging::LogRecord record = logging::LogRecordFactory::CreateTupleRecord(LogRecordType::TUPLE_DELETE, ItemPointer(tile_group_id, tuple_slot),end_commit_id, epoch_id);
         current_txn->log_records_.push_back(record);
       } else if (tuple_entry.second == RWType::INSERT) {
 
@@ -877,7 +880,7 @@ ResultType TimestampOrderingTransactionManager::CommitTransaction(
         tile_group_header->SetTransactionId(tuple_slot, INITIAL_TXN_ID);
 
         // nothing to be added to gc set.
-        LogRecord record = LogRecordFactory::CreateTupleRecord(LogRecordType::TUPLE_INSERT, ItemPointer(tile_group_id, tuple_slot),end_commit_id, epoch_id);
+        logging::LogRecord record = logging::LogRecordFactory::CreateTupleRecord(LogRecordType::TUPLE_INSERT, ItemPointer(tile_group_id, tuple_slot),end_commit_id, epoch_id);
         current_txn->log_records_.push_back(record);
 
       } else if (tuple_entry.second == RWType::INS_DEL) {
@@ -901,24 +904,26 @@ ResultType TimestampOrderingTransactionManager::CommitTransaction(
       }
     }
   }
-  if(!current_txn->log_records_.empty()){
-      log_manager.LogTransaction(current_txn->log_records_);
+
+  if(log_manager != nullptr && !current_txn->log_records_.empty()){
+      log_manager->LogTransaction(current_txn->log_records_);
       EndTransaction(current_txn);
       if (settings::SettingsManager::GetInt(settings::SettingId::stats_mode) !=
           STATS_TYPE_INVALID) {
         stats::BackendStatsContext::GetInstance()->IncrementTxnCommitted(
-            database_oid);
+            database_id);
       }
 
       return ResultType::QUEUING;
   }
+
   else{
       ResultType result = current_txn->GetResult();
       EndTransaction(current_txn);
       if (settings::SettingsManager::GetInt(settings::SettingId::stats_mode) !=
           STATS_TYPE_INVALID) {
         stats::BackendStatsContext::GetInstance()->IncrementTxnCommitted(
-            database_oid);
+            database_id);
       }
 
     return result;
