@@ -2,11 +2,13 @@
 //
 //                         Peloton
 //
-// reordered_phylog_logger.h
+// wal_recovery.h
 //
-// Identification: src/backend/logging/reordered_phylog_logger.h
+// Identification: src/include/logging/wal_recovery.h
 //
-// Copyright (c) 2015-16, Carnegie Mellon University Database Group
+// Recovery component, called on init.
+//
+// Copyright (c) 2015-17, Carnegie Mellon University Database Group
 //
 //===----------------------------------------------------------------------===//
 
@@ -41,7 +43,7 @@ class WalRecovery {
 public:
   WalRecovery(const size_t &logger_id, const std::string &log_dir) :
     logger_id_(logger_id),
-    log_dir_(log_dir),
+    log_dir_(log_dir)
     {}
 
   ~WalRecovery() {}
@@ -58,7 +60,7 @@ private:
 
   void GetSortedLogFileIdList();
 
-  void RunRecoveryThread();
+  void RunRecovery();
 
   void RunSecIndexRebuildThread();
 

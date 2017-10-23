@@ -60,24 +60,24 @@ class WalLogManager {
 
 public:
   WalLogManager()
-    :is_running_(false) {}
+     {}
+
+  //Constructor. Same fashion as tcop
   WalLogManager(void(* task_callback)(void *), void *task_callback_arg):
-      task_callback_(task_callback), task_callback_arg_(task_callback_arg),is_running_(false) {
+      task_callback_(task_callback), task_callback_arg_(task_callback_arg) {
   }
-  /*static WalLogManager &GetInstance() {
-    static WalLogManager log_manager;
-    return log_manager;
-  }*/
   ~WalLogManager() {}
 
   static void SetDirectories(std::string logging_dir);
 
-
   static void WriteTransactionWrapper(void* args);
 
+  static void WriteTransaction(std::vector<LogRecord> log_records, ResultType* result);
 
   // Logger side logic
   static void DoRecovery();
+
+  ResultType LogTransaction(std::vector<LogRecord> log_records);
 
   void SetTaskCallback(void(* task_callback)(void*), void *task_callback_arg) {
     task_callback_ = task_callback;
@@ -97,14 +97,12 @@ struct LogTransactionArg {
                         ResultType* p_status) :
       log_records_(log_records),
       p_status_(p_status) {}
-//      event_(event) {}
-//      io_trigger_(io_trigger) { }
+
 
 
   std::vector<LogRecord> log_records_;
   ResultType *p_status_;
-//  struct event* event_;
-//  IOTrigger *io_trigger_;
+
 };
 }
 }
