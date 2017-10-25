@@ -215,11 +215,11 @@ class TileGroupHeader : public Printable {
         indirection;
   }
 
-  inline bool IsEvicted() {
-    return evicted_
+  inline bool IsEvictable() {
+    return evicted_;
   }
 
-  inline void SetEvicted(bool value) {
+  inline void SetEvictable(bool value) {
     evicted_ = value;
   }
 

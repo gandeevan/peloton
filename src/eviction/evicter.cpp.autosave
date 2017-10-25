@@ -1,0 +1,19 @@
+#include "eviction/evicter.h"
+#include "type/serializeio.h"
+
+namespace peloton {
+namespace eviction{
+    void EvictDataFromTable (storage::DataTable* table){
+        for(int offset = 0; offset < table->GetTileGroupCount(); offset++){
+            auto tg = table->GetTileGroup(offset);
+            if(tg->GetHeader()->IsEvictable()){
+                EvictTileGroup(tg);
+            }
+        }
+    }
+    void EvictTileGroup(std::shared_ptr<storage::TileGroup> tg){
+        CopySerializeOutput output;
+        for(auto tile : tg->)
+    }
+}
+}
