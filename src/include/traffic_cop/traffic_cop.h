@@ -131,6 +131,7 @@ class TrafficCop {
   executor::ExecuteResult p_status_;
 
   bool is_queuing_;
+  bool is_logging_;
 
 //  struct event* event_;
  private:
