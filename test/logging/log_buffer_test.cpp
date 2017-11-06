@@ -1,78 +1,78 @@
-//===----------------------------------------------------------------------===//
-//
-//                         Peloton
-//
-// log_buffer_test.cpp
-//
-// Identification: test/logging/log_buffer_test.cpp
-//
-// Copyright (c) 2015-16, Carnegie Mellon University Database Group
-//
-//===----------------------------------------------------------------------===//
+////===----------------------------------------------------------------------===//
+////
+////                         Peloton
+////
+//// log_buffer_test.cpp
+////
+//// Identification: test/logging/log_buffer_test.cpp
+////
+//// Copyright (c) 2015-16, Carnegie Mellon University Database Group
+////
+////===----------------------------------------------------------------------===//
 
-#include "logging/log_buffer.h"
-#include "common/harness.h"
+//#include "logging/log_buffer.h"
+//#include "common/harness.h"
 
-namespace peloton {
-namespace test {
+//namespace peloton {
+//namespace test {
 
-//===--------------------------------------------------------------------===//
-// Log Buffer Tests
-//===--------------------------------------------------------------------===//
+////===--------------------------------------------------------------------===//
+//// Log Buffer Tests
+////===--------------------------------------------------------------------===//
 
-class LogBufferTests : public PelotonTest {};
+//class LogBufferTests : public PelotonTest {};
 
-TEST_F(LogBufferTests, LogBufferTest) {
+//TEST_F(LogBufferTests, LogBufferTest) {
   
-  logging::LogBuffer log_buffer(1, 1);
+//  logging::LogBuffer log_buffer(1, 1);
 
-  int eid = log_buffer.GetEpochId();
+//  int eid = log_buffer.GetEpochId();
 
-  EXPECT_EQ(eid, 1);
+//  EXPECT_EQ(eid, 1);
 
-  int thread_id = log_buffer.GetThreadId();
+//  int thread_id = log_buffer.GetThreadId();
 
-  EXPECT_EQ(thread_id, 1);
+//  EXPECT_EQ(thread_id, 1);
 
-  log_buffer.Reset();
+//  log_buffer.Reset();
 
-  eid = log_buffer.GetEpochId();
+//  eid = log_buffer.GetEpochId();
 
-  EXPECT_EQ(eid, INVALID_EID);
+//  EXPECT_EQ(eid, INVALID_EID);
 
-  bool rt = log_buffer.Empty();
+//  bool rt = log_buffer.Empty();
 
-  EXPECT_EQ(rt, true);
+//  EXPECT_EQ(rt, true);
 
-  char *data = log_buffer.GetData();
+//  char *data = log_buffer.GetData();
 
-  int num = 99;
+//  int num = 99;
 
-  rt = log_buffer.WriteData((char*)(&num), sizeof(num));
+//  rt = log_buffer.WriteData((char*)(&num), sizeof(num));
 
-  EXPECT_EQ(rt, true);
+//  EXPECT_EQ(rt, true);
 
-  int num2;
+//  int num2;
 
-  PL_MEMCPY(&num2, data, sizeof(num));
+//  PL_MEMCPY(&num2, data, sizeof(num));
 
-  EXPECT_EQ(num2, 99);
+//  EXPECT_EQ(num2, 99);
 
-  size_t size = log_buffer.GetSize();
+//  size_t size = log_buffer.GetSize();
 
-  EXPECT_EQ(size, sizeof(num));
+//  EXPECT_EQ(size, sizeof(num));
 
-  log_buffer.Reset();
+//  log_buffer.Reset();
 
-  rt = log_buffer.Empty();
+//  rt = log_buffer.Empty();
 
-  EXPECT_EQ(rt, true);
+//  EXPECT_EQ(rt, true);
 
-  size = log_buffer.GetSize();
+//  size = log_buffer.GetSize();
 
-  EXPECT_EQ(size, 0);
+//  EXPECT_EQ(size, 0);
   
-}
+//}
 
-}
-}
+//}
+//}

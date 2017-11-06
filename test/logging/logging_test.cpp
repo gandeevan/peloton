@@ -11,17 +11,21 @@
 // //===----------------------------------------------------------------------===//
 
 // #include "catalog/catalog.h"
-// #include "common/harness.h"
+ #include "common/harness.h"
 // #include "executor/testing_executor_util.h"
-// #include "logging/testing_logging_util.h"
+ #include "eviction/evicter.h"
 
 // #include "concurrency/transaction_manager_factory.h"
 // #include "executor/logical_tile_factory.h"
 // #include "logging/loggers/wal_frontend_logger.h"
 // #include "logging/logging_util.h"
-// #include "storage/data_table.h"
+ #include "storage/data_table.h"
+#include "storage/tuple.h"
 // #include "storage/database.h"
-// #include "storage/table_factory.h"
+ #include "storage/table_factory.h"
+#include "type/value_factory.h"
+#include "storage/tile_group.h"
+#include "storage/tile_group_header.h"
 // #include "storage/tile.h"
 
 // #include "executor/mock_executor.h"
@@ -32,16 +36,40 @@
 
 // extern peloton::LoggingType peloton_logging_mode;
 
-// namespace peloton {
-// namespace test {
+ namespace peloton {
+ namespace test {
 
 // //===--------------------------------------------------------------------===//
 // // Logging Tests
 // //===--------------------------------------------------------------------===//
 
-// class LoggingTests : public PelotonTest {};
+ class LoggingTests : public PelotonTest {};
 
-// TEST_F(LoggingTests, BasicLoggingTest) {
+ TEST_F(LoggingTests, BasicLoggingTest) {
+     std::vector<catalog::Column> cols;
+     cols.push_back(catalog::Column(type::TypeId::INTEGER,8,"a",true,0));
+     cols.push_back(catalog::Column(type::TypeId::INTEGER,8,"b",true,8));
+     cols.push_back(catalog::Column(type::TypeId::INTEGER,8,"c",true,16));
+     catalog::Schema* s = new catalog::Schema(cols);
+     storage::TempTable* dt = storage::TableFactory::GetTempTable(s,true);
+     storage::Tuple* t = new storage::Tuple(s,true);
+     t->SetValue(0,type::ValueFactory::GetIntegerValue(1));
+t->SetValue(1,type::ValueFactory::GetIntegerValue(1));
+t->SetValue(2,type::ValueFactory::GetIntegerValue(1));
+storage::Tuple* t2 = new storage::Tuple(s,true);
+t->SetValue(0,type::ValueFactory::GetIntegerValue(2));
+t->SetValue(1,type::ValueFactory::GetIntegerValue(2));
+t->SetValue(2,type::ValueFactory::GetIntegerValue(2));
+
+     dt->InsertTuple(t);
+     dt->InsertTuple(t2);
+    dt->GetTileGroup(0)->GetHeader()->SetEvictable(true);
+    eviction::Evicter* e = new eviction::Evicter();
+    e->EvictDataFromTable(dt);
+    auto ptr = dt->GetTileGroup(0);
+    dt->GetTileGroupCount();
+ }
+
 //   std::unique_ptr<storage::DataTable> table(
 //       TestingExecutorUtil::CreateTable(1));
 
@@ -379,6 +407,6 @@
 //   log_manager.EndLogging();
 // }
 
-// }  // namespace test
-// }  // namespace peloton
+ }  // namespace test
+ }  // namespace peloton
 // >>>>>>> master

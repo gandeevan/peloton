@@ -131,8 +131,6 @@ class DataTable : public AbstractTable {
 
   void AddTileGroup(const std::shared_ptr<TileGroup> &tile_group);
 
-  void DeleteTileGroup(const std::size_t &tile_group_offset);
-
   // Offset is a 0-based number local to the table
   std::shared_ptr<storage::TileGroup> GetTileGroup(
       const std::size_t &tile_group_offset) const;

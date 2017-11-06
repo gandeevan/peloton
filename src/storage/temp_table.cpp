@@ -119,7 +119,7 @@ oid_t TempTable::AddDefaultTileGroup() {
   // Create a tile group with that partitioning
   std::shared_ptr<storage::TileGroup> tile_group(
       AbstractTable::GetTileGroupWithLayout(
-          INVALID_OID, tile_group_id, column_map, TEMPTABLE_DEFAULT_SIZE));
+          INVALID_OID, tile_group_id, column_map, 1));
   PL_ASSERT(tile_group.get());
 
   tile_groups_.push_back(tile_group);

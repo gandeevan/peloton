@@ -122,6 +122,10 @@ class DataTable : public AbstractTable {
   // aggregate_executor.
   ItemPointer InsertTuple(const Tuple *tuple);
 
+  // Insert tuple with ItemPointer provided explicitly
+  bool InsertTuple(const AbstractTuple *tuple, ItemPointer location,
+      concurrency::Transaction *transaction, ItemPointer **index_entry_ptr);
+
   //===--------------------------------------------------------------------===//
   // TILE GROUP
   //===--------------------------------------------------------------------===//
@@ -130,8 +134,6 @@ class DataTable : public AbstractTable {
   void AddTileGroupWithOidForRecovery(const oid_t &tile_group_id);
 
   void AddTileGroup(const std::shared_ptr<TileGroup> &tile_group);
-
-  void DeleteTileGroup(const std::size_t &tile_group_offset);
 
   // Offset is a 0-based number local to the table
   std::shared_ptr<storage::TileGroup> GetTileGroup(
@@ -270,7 +272,7 @@ class DataTable : public AbstractTable {
   // try to insert into all indexes.
   // the last argument is the index entry in primary index holding the new
   // tuple.
-  bool InsertInIndexes(const storage::Tuple *tuple, ItemPointer location,
+  bool InsertInIndexes(const AbstractTuple *tuple, ItemPointer location,
                        concurrency::Transaction *transaction,
                        ItemPointer **index_entry_ptr);
 
@@ -282,6 +284,15 @@ class DataTable : public AbstractTable {
       const size_t active_indirection_array_count) {
     default_active_indirection_array_count_ = active_indirection_array_count;
   }
+
+<<<<<<< HEAD
+  // Claim a tuple slot in a tile group
+  ItemPointer GetEmptyTupleSlot(const storage::Tuple *tuple,
+                                bool check_constraint = true);
+=======
+  // add a tile group to the table
+  oid_t AddDefaultTileGroup();
+>>>>>>> 3d06bfe... Fixing access issue corner case
 
  protected:
   //===--------------------------------------------------------------------===//
@@ -300,12 +311,16 @@ class DataTable : public AbstractTable {
 
   bool CheckConstraints(const storage::Tuple *tuple) const;
 
+<<<<<<< HEAD
+  // add a tile group to the table
+  oid_t AddDefaultTileGroup();
+=======
   // Claim a tuple slot in a tile group
   ItemPointer GetEmptyTupleSlot(const storage::Tuple *tuple,
                                 bool check_constraint = true);
 
-  // add a tile group to the table
-  oid_t AddDefaultTileGroup();
+
+>>>>>>> 3d06bfe... Fixing access issue corner case
   // add a tile group to the table. replace the active_tile_group_id-th active
   // tile group.
   oid_t AddDefaultTileGroup(const size_t &active_tile_group_id);
@@ -325,7 +340,7 @@ class DataTable : public AbstractTable {
                                 ItemPointer *index_entry_ptr);
 
   // check the foreign key constraints
-  bool CheckForeignKeyConstraints(const storage::Tuple *tuple);
+  bool CheckForeignKeyConstraints(const AbstractTuple *tuple);
 
  public:
   static size_t default_active_tilegroup_count_;

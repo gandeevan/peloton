@@ -688,6 +688,11 @@ oid_t DataTable::AddDefaultTileGroup() {
   return AddDefaultTileGroup(active_tile_group_id);
 }
 
+void DataTable::DeleteTileGroup(const std::size_t &tile_group_offset UNUSED_ATTRIBUTE){
+//    TileGroup* tg = GetTileGroup(tile_group_offset);
+//    tile_groups_.Erase(tile_group_offset,)
+}
+
 oid_t DataTable::AddDefaultTileGroup(const size_t &active_tile_group_id) {
   column_map_type column_map;
   oid_t tile_group_id = INVALID_OID;

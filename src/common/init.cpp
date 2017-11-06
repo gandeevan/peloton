@@ -22,7 +22,7 @@
 #include "concurrency/transaction_manager_factory.h"
 #include "gc/gc_manager_factory.h"
 #include "settings/settings_manager.h"
-#include "resource_tracking/resource_tracker.h"
+#include "ltm/resource_tracker.h"
 
 namespace peloton {
 

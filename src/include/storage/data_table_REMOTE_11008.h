@@ -131,8 +131,6 @@ class DataTable : public AbstractTable {
 
   void AddTileGroup(const std::shared_ptr<TileGroup> &tile_group);
 
-  void DeleteTileGroup(const std::size_t &tile_group_offset);
-
   // Offset is a 0-based number local to the table
   std::shared_ptr<storage::TileGroup> GetTileGroup(
       const std::size_t &tile_group_offset) const;
@@ -283,6 +281,9 @@ class DataTable : public AbstractTable {
     default_active_indirection_array_count_ = active_indirection_array_count;
   }
 
+  // add a tile group to the table
+  oid_t AddDefaultTileGroup();
+
  protected:
   //===--------------------------------------------------------------------===//
   // INTEGRITY CHECKS
@@ -304,8 +305,7 @@ class DataTable : public AbstractTable {
   ItemPointer GetEmptyTupleSlot(const storage::Tuple *tuple,
                                 bool check_constraint = true);
 
-  // add a tile group to the table
-  oid_t AddDefaultTileGroup();
+
   // add a tile group to the table. replace the active_tile_group_id-th active
   // tile group.
   oid_t AddDefaultTileGroup(const size_t &active_tile_group_id);
