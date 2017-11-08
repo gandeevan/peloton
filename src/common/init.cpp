@@ -44,7 +44,8 @@ void PelotonInit::Initialize() {
   // start epoch.
   concurrency::EpochManagerFactory::GetInstance().StartEpoch();
 
-  //logging::DurabilityFactory::Configure(LoggingType::ON, CheckpointType::CHECKPOINT_TYPE_INVALID, TimerType::TIMER_OFF);
+  // logging::DurabilityFactory::Configure(LoggingType::ON,
+  // CheckpointType::CHECKPOINT_TYPE_INVALID, TimerType::TIMER_OFF);
 
   // start GC.
   gc::GCManagerFactory::GetInstance().StartGC();
@@ -80,8 +81,7 @@ void PelotonInit::Initialize() {
   txn_manager.CommitTransaction(txn);
   logging::WalLogManager::SetDirectories({"/tmp/log"});
   logging::WalLogManager::DoRecovery();
-  //log_manager.StartLoggers();
-
+  // log_manager.StartLoggers();
 }
 
 void PelotonInit::Shutdown() {
