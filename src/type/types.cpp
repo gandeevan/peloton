@@ -285,7 +285,7 @@ type::TypeId StringToTypeId(const std::string& str) {
   return type::TypeId::INVALID;
 }
 
-std::string TypeIdArrayToString(const std::vector<type::TypeId> &types) {
+std::string TypeIdArrayToString(const std::vector<type::TypeId>& types) {
   std::string result = "";
   for (auto type : types) {
     if (result != "") result.append(",");
@@ -296,7 +296,7 @@ std::string TypeIdArrayToString(const std::vector<type::TypeId> &types) {
 
 // Get argument type vector from its string representation
 // e.g. "integer,boolean" --> vector{TypeId::INTEGER, TypeId::BOOLEAN}
-std::vector<type::TypeId> StringToTypeArray(const std::string &types) {
+std::vector<type::TypeId> StringToTypeArray(const std::string& types) {
   std::vector<type::TypeId> result;
   std::istringstream stream(types);
   std::string type;
@@ -331,9 +331,9 @@ std::string CreateTypeToString(CreateType type) {
       return "TRIGGER";
     }
     default: {
-      throw ConversionException(StringUtil::Format(
-          "No string conversion for CreateType value '%d'",
-          static_cast<int>(type)));
+      throw ConversionException(
+          StringUtil::Format("No string conversion for CreateType value '%d'",
+                             static_cast<int>(type)));
     }
   }
   return "INVALID";
@@ -385,9 +385,9 @@ std::string DropTypeToString(DropType type) {
       return "TRIGGER";
     }
     default: {
-      throw ConversionException(StringUtil::Format(
-          "No string conversion for DropType value '%d'",
-          static_cast<int>(type)));
+      throw ConversionException(
+          StringUtil::Format("No string conversion for DropType value '%d'",
+                             static_cast<int>(type)));
     }
   }
   return "INVALID";
@@ -710,7 +710,7 @@ ExpressionType StringToExpressionType(const std::string& str) {
     return ExpressionType::OPERATOR_DIVIDE;
   } else if (upper_str == "OPERATOR_CONCAT" || upper_str == "||") {
     return ExpressionType::OPERATOR_CONCAT;
-  } else if (upper_str == "OPERATOR_MOD" || upper_str == "%" ) {
+  } else if (upper_str == "OPERATOR_MOD" || upper_str == "%") {
     return ExpressionType::OPERATOR_MOD;
   } else if (upper_str == "OPERATOR_CAST") {
     return ExpressionType::OPERATOR_CAST;
@@ -724,8 +724,8 @@ ExpressionType StringToExpressionType(const std::string& str) {
     return ExpressionType::OPERATOR_UNARY_MINUS;
   } else if (upper_str == "COMPARE_EQUAL" || upper_str == "=") {
     return ExpressionType::COMPARE_EQUAL;
-  } else if (upper_str == "COMPARE_NOTEQUAL"
-      || upper_str == "!=" || upper_str == "<>") {
+  } else if (upper_str == "COMPARE_NOTEQUAL" || upper_str == "!=" ||
+             upper_str == "<>") {
     return ExpressionType::COMPARE_NOTEQUAL;
   } else if (upper_str == "COMPARE_LESSTHAN" || upper_str == "<") {
     return ExpressionType::COMPARE_LESSTHAN;
@@ -1323,7 +1323,7 @@ std::string AggregateTypeToString(AggregateType type) {
   return "INVALID";
 }
 
-AggregateType StringToAggregateType(const std::string &str) {
+AggregateType StringToAggregateType(const std::string& str) {
   std::string upper_str = StringUtil::Upper(str);
   if (upper_str == "INVALID") {
     return AggregateType::INVALID;
@@ -1334,14 +1334,13 @@ AggregateType StringToAggregateType(const std::string &str) {
   } else if (upper_str == "PLAIN") {
     return AggregateType::PLAIN;
   } else {
-    throw ConversionException(
-        StringUtil::Format("No AggregateType conversion from string '%s'",
-                           upper_str.c_str()));
+    throw ConversionException(StringUtil::Format(
+        "No AggregateType conversion from string '%s'", upper_str.c_str()));
   }
   return AggregateType::INVALID;
 }
 
-std::ostream &operator<<(std::ostream &os, const AggregateType &type) {
+std::ostream& operator<<(std::ostream& os, const AggregateType& type) {
   os << AggregateTypeToString(type);
   return os;
 }
@@ -1379,9 +1378,8 @@ QuantifierType StringToQuantifierType(const std::string& str) {
   } else if (upper_str == "ALL") {
     return QuantifierType::ALL;
   } else {
-    throw ConversionException(
-        StringUtil::Format("No QuantifierType conversion from string '%s'",
-                           upper_str.c_str()));
+    throw ConversionException(StringUtil::Format(
+        "No QuantifierType conversion from string '%s'", upper_str.c_str()));
   }
   return QuantifierType::NONE;
 }
@@ -1462,15 +1460,15 @@ std::string InsertTypeToString(InsertType type) {
       return "SELECT";
     }
     default: {
-      throw ConversionException(StringUtil::Format(
-          "No string conversion for InsertType value '%d'",
-          static_cast<int>(type)));
+      throw ConversionException(
+          StringUtil::Format("No string conversion for InsertType value '%d'",
+                             static_cast<int>(type)));
     }
   }
   return "INVALID";
 }
 
-InsertType StringToInsertType(const std::string &str) {
+InsertType StringToInsertType(const std::string& str) {
   std::string upper_str = StringUtil::Upper(str);
   if (upper_str == "INVALID") {
     return InsertType::INVALID;
@@ -1479,14 +1477,13 @@ InsertType StringToInsertType(const std::string &str) {
   } else if (upper_str == "SELECT") {
     return InsertType::SELECT;
   } else {
-    throw ConversionException(
-        StringUtil::Format("No InsertType conversion from string '%s'",
-                           upper_str.c_str()));
+    throw ConversionException(StringUtil::Format(
+        "No InsertType conversion from string '%s'", upper_str.c_str()));
   }
   return InsertType::INVALID;
 }
 
-std::ostream &operator<<(std::ostream &os, const InsertType &type) {
+std::ostream& operator<<(std::ostream& os, const InsertType& type) {
   os << InsertTypeToString(type);
   return os;
 }
@@ -1516,15 +1513,15 @@ std::string CopyTypeToString(CopyType type) {
       return "EXPORT_OTHER";
     }
     default: {
-      throw ConversionException(StringUtil::Format(
-          "No string conversion for CopyType value '%d'",
-          static_cast<int>(type)));
+      throw ConversionException(
+          StringUtil::Format("No string conversion for CopyType value '%d'",
+                             static_cast<int>(type)));
     }
   }
   return "INVALID";
 }
 
-CopyType StringToCopyType(const std::string &str) {
+CopyType StringToCopyType(const std::string& str) {
   std::string upper_str = StringUtil::Upper(str);
   if (upper_str == "INVALID") {
     return CopyType::INVALID;
@@ -1539,14 +1536,13 @@ CopyType StringToCopyType(const std::string &str) {
   } else if (upper_str == "EXPORT_OTHER") {
     return CopyType::EXPORT_OTHER;
   } else {
-    throw ConversionException(
-        StringUtil::Format("No CopyType conversion from string '%s'",
-                           upper_str.c_str()));
+    throw ConversionException(StringUtil::Format(
+        "No CopyType conversion from string '%s'", upper_str.c_str()));
   }
   return CopyType::INVALID;
 }
 
-std::ostream &operator<<(std::ostream &os, const CopyType &type) {
+std::ostream& operator<<(std::ostream& os, const CopyType& type) {
   os << CopyTypeToString(type);
   return os;
 }
@@ -1578,7 +1574,7 @@ std::string PayloadTypeToString(PayloadType type) {
   return "INVALID";
 }
 
-PayloadType StringToPayloadType(const std::string &str) {
+PayloadType StringToPayloadType(const std::string& str) {
   std::string upper_str = StringUtil::Upper(str);
   if (upper_str == "INVALID") {
     return PayloadType::INVALID;
@@ -1595,7 +1591,7 @@ PayloadType StringToPayloadType(const std::string &str) {
   return PayloadType::INVALID;
 }
 
-std::ostream &operator<<(std::ostream &os, const PayloadType &type) {
+std::ostream& operator<<(std::ostream& os, const PayloadType& type) {
   os << PayloadTypeToString(type);
   return os;
 }
@@ -1638,9 +1634,8 @@ TaskPriorityType StringToTaskPriorityType(const std::string& str) {
   } else if (upper_str == "HIGH") {
     return TaskPriorityType::HIGH;
   } else {
-    throw ConversionException(
-        StringUtil::Format("No TaskPriorityType conversion from string '%s'",
-                           upper_str.c_str()));
+    throw ConversionException(StringUtil::Format(
+        "No TaskPriorityType conversion from string '%s'", upper_str.c_str()));
   }
   return TaskPriorityType::INVALID;
 }
@@ -1677,9 +1672,9 @@ std::string ResultTypeToString(ResultType type) {
     case ResultType::QUEUING: {
       return ("QUEUING");
     }
-  case ResultType::LOGGING: {
-    return ("LOGGING");
-  }
+    case ResultType::LOGGING: {
+      return ("LOGGING");
+    }
     default: {
       throw ConversionException(
           StringUtil::Format("No string conversion for ResultType value '%d'",
@@ -1705,12 +1700,13 @@ ResultType StringToResultType(const std::string& str) {
     return ResultType::UNKNOWN;
   } else if (upper_str == "QUEUING") {
     return ResultType::QUEUING;
-  } else  if (upper_str == "LOGGING") {
-      return ResultType::QUEUING;
-    } else {
-      throw ConversionException(StringUtil::Format(
-          "No ResultType conversion from string '%s'", upper_str.c_str()));
-    }{
+  } else if (upper_str == "LOGGING") {
+    return ResultType::QUEUING;
+  } else {
+    throw ConversionException(StringUtil::Format(
+        "No ResultType conversion from string '%s'", upper_str.c_str()));
+  }
+  {
     throw ConversionException(StringUtil::Format(
         "No ResultType conversion from string '%s'", upper_str.c_str()));
   }
@@ -1791,7 +1787,7 @@ ConstraintType StringToConstraintType(const std::string& str) {
   return ConstraintType::INVALID;
 }
 
-std::ostream &operator<<(std::ostream &os, const ConstraintType &type) {
+std::ostream& operator<<(std::ostream& os, const ConstraintType& type) {
   os << ConstraintTypeToString(type);
   return os;
 }
@@ -1818,9 +1814,9 @@ std::string SetOpTypeToString(SetOpType type) {
       return "EXCEPT_ALL";
     }
     default: {
-      throw ConversionException(StringUtil::Format(
-          "No string conversion for SetOpType value '%d'",
-          static_cast<int>(type)));
+      throw ConversionException(
+          StringUtil::Format("No string conversion for SetOpType value '%d'",
+                             static_cast<int>(type)));
     }
   }
   return "INVALID";
@@ -1839,9 +1835,8 @@ SetOpType StringToSetOpType(const std::string& str) {
   } else if (upper_str == "EXCEPT_ALL") {
     return SetOpType::EXCEPT_ALL;
   } else {
-    throw ConversionException(
-        StringUtil::Format("No SetOpType conversion from string '%s'",
-                           upper_str.c_str()));
+    throw ConversionException(StringUtil::Format(
+        "No SetOpType conversion from string '%s'", upper_str.c_str()));
   }
   return SetOpType::INVALID;
 }
@@ -1850,7 +1845,6 @@ std::ostream& operator<<(std::ostream& os, const SetOpType& type) {
   os << SetOpTypeToString(type);
   return os;
 }
-
 
 //===--------------------------------------------------------------------===//
 // Concurrency Control Types
@@ -1873,7 +1867,7 @@ std::string ProtocolTypeToString(ProtocolType type) {
   return "INVALID";
 }
 
-ProtocolType StringToProtocolType(const std::string &str) {
+ProtocolType StringToProtocolType(const std::string& str) {
   std::string upper_str = StringUtil::Upper(str);
   if (upper_str == "INVALID") {
     return ProtocolType::INVALID;
@@ -1886,7 +1880,7 @@ ProtocolType StringToProtocolType(const std::string &str) {
   return ProtocolType::INVALID;
 }
 
-std::ostream &operator<<(std::ostream &os, const ProtocolType &type) {
+std::ostream& operator<<(std::ostream& os, const ProtocolType& type) {
   os << ProtocolTypeToString(type);
   return os;
 }
@@ -1912,7 +1906,7 @@ std::string EpochTypeToString(EpochType type) {
   return "INVALID";
 }
 
-EpochType StringToEpochType(const std::string &str) {
+EpochType StringToEpochType(const std::string& str) {
   std::string upper_str = StringUtil::Upper(str);
   if (upper_str == "INVALID") {
     return EpochType::INVALID;
@@ -1925,7 +1919,7 @@ EpochType StringToEpochType(const std::string &str) {
   return EpochType::INVALID;
 }
 
-std::ostream &operator<<(std::ostream &os, const EpochType &type) {
+std::ostream& operator<<(std::ostream& os, const EpochType& type) {
   os << EpochTypeToString(type);
   return os;
 }
@@ -1945,15 +1939,15 @@ std::string TimestampTypeToString(TimestampType type) {
       return "COMMIT";
     }
     default: {
-      throw ConversionException(
-          StringUtil::Format("No string conversion for TimestampType value '%d'",
-                             static_cast<int>(type)));
+      throw ConversionException(StringUtil::Format(
+          "No string conversion for TimestampType value '%d'",
+          static_cast<int>(type)));
     }
   }
   return "INVALID";
 }
 
-TimestampType StringToTimestampType(const std::string &str) {
+TimestampType StringToTimestampType(const std::string& str) {
   std::string upper_str = StringUtil::Upper(str);
   if (upper_str == "INVALID") {
     return TimestampType::INVALID;
@@ -1970,7 +1964,7 @@ TimestampType StringToTimestampType(const std::string &str) {
   return TimestampType::INVALID;
 }
 
-std::ostream &operator<<(std::ostream &os, const TimestampType &type) {
+std::ostream& operator<<(std::ostream& os, const TimestampType& type) {
   os << TimestampTypeToString(type);
   return os;
 }
@@ -1994,15 +1988,15 @@ std::string VisibilityTypeToString(VisibilityType type) {
       return "OK";
     }
     default: {
-      throw ConversionException(
-          StringUtil::Format("No string conversion for VisibilityType value '%d'",
-                             static_cast<int>(type)));
+      throw ConversionException(StringUtil::Format(
+          "No string conversion for VisibilityType value '%d'",
+          static_cast<int>(type)));
     }
   }
   return "INVALID";
 }
 
-VisibilityType StringToVisibilityType(const std::string &str) {
+VisibilityType StringToVisibilityType(const std::string& str) {
   std::string upper_str = StringUtil::Upper(str);
   if (upper_str == "INVALID") {
     return VisibilityType::INVALID;
@@ -2019,11 +2013,10 @@ VisibilityType StringToVisibilityType(const std::string &str) {
   return VisibilityType::INVALID;
 }
 
-std::ostream &operator<<(std::ostream &os, const VisibilityType &type) {
+std::ostream& operator<<(std::ostream& os, const VisibilityType& type) {
   os << VisibilityTypeToString(type);
   return os;
 }
-
 
 std::string VisibilityIdTypeToString(VisibilityIdType type) {
   switch (type) {
@@ -2037,15 +2030,15 @@ std::string VisibilityIdTypeToString(VisibilityIdType type) {
       return "COMMIT_ID";
     }
     default: {
-      throw ConversionException(
-          StringUtil::Format("No string conversion for VisibilityIdType value '%d'",
-                             static_cast<int>(type)));
+      throw ConversionException(StringUtil::Format(
+          "No string conversion for VisibilityIdType value '%d'",
+          static_cast<int>(type)));
     }
   }
   return "INVALID";
 }
 
-VisibilityIdType StringToVisibilityIdType(const std::string &str) {
+VisibilityIdType StringToVisibilityIdType(const std::string& str) {
   std::string upper_str = StringUtil::Upper(str);
   if (upper_str == "INVALID") {
     return VisibilityIdType::INVALID;
@@ -2060,7 +2053,7 @@ VisibilityIdType StringToVisibilityIdType(const std::string &str) {
   return VisibilityIdType::INVALID;
 }
 
-std::ostream &operator<<(std::ostream &os, const VisibilityIdType &type) {
+std::ostream& operator<<(std::ostream& os, const VisibilityIdType& type) {
   os << VisibilityIdTypeToString(type);
   return os;
 }
@@ -2090,15 +2083,15 @@ std::string IsolationLevelTypeToString(IsolationLevelType type) {
       return "READ_ONLY";
     }
     default: {
-      throw ConversionException(
-          StringUtil::Format("No string conversion for IsolationLevelType value '%d'",
-                             static_cast<int>(type)));
+      throw ConversionException(StringUtil::Format(
+          "No string conversion for IsolationLevelType value '%d'",
+          static_cast<int>(type)));
     }
   }
   return "INVALID";
 }
 
-IsolationLevelType StringToIsolationLevelType(const std::string &str) {
+IsolationLevelType StringToIsolationLevelType(const std::string& str) {
   std::string upper_str = StringUtil::Upper(str);
   if (upper_str == "INVALID") {
     return IsolationLevelType::INVALID;
@@ -2112,19 +2105,18 @@ IsolationLevelType StringToIsolationLevelType(const std::string &str) {
     return IsolationLevelType::READ_COMMITTED;
   } else if (upper_str == "READ_ONLY") {
     return IsolationLevelType::READ_ONLY;
-  }
-  else {
-    throw ConversionException(StringUtil::Format(
-        "No IsolationLevelType conversion from string '%s'", upper_str.c_str()));
+  } else {
+    throw ConversionException(
+        StringUtil::Format("No IsolationLevelType conversion from string '%s'",
+                           upper_str.c_str()));
   }
   return IsolationLevelType::INVALID;
 }
 
-std::ostream &operator<<(std::ostream &os, const IsolationLevelType &type) {
+std::ostream& operator<<(std::ostream& os, const IsolationLevelType& type) {
   os << IsolationLevelTypeToString(type);
   return os;
 }
-
 
 //===--------------------------------------------------------------------===//
 // Conflict Avoidance types
@@ -2142,15 +2134,15 @@ std::string ConflictAvoidanceTypeToString(ConflictAvoidanceType type) {
       return "ABORT";
     }
     default: {
-      throw ConversionException(
-          StringUtil::Format("No string conversion for ConflictAvoidanceType value '%d'",
-                             static_cast<int>(type)));
+      throw ConversionException(StringUtil::Format(
+          "No string conversion for ConflictAvoidanceType value '%d'",
+          static_cast<int>(type)));
     }
   }
   return "INVALID";
 }
 
-ConflictAvoidanceType StringToConflictAvoidanceType(const std::string &str) {
+ConflictAvoidanceType StringToConflictAvoidanceType(const std::string& str) {
   std::string upper_str = StringUtil::Upper(str);
   if (upper_str == "INVALID") {
     return ConflictAvoidanceType::INVALID;
@@ -2160,12 +2152,13 @@ ConflictAvoidanceType StringToConflictAvoidanceType(const std::string &str) {
     return ConflictAvoidanceType::ABORT;
   } else {
     throw ConversionException(StringUtil::Format(
-        "No ConflictAvoidanceType conversion from string '%s'", upper_str.c_str()));
+        "No ConflictAvoidanceType conversion from string '%s'",
+        upper_str.c_str()));
   }
   return ConflictAvoidanceType::INVALID;
 }
 
-std::ostream &operator<<(std::ostream &os, const ConflictAvoidanceType &type) {
+std::ostream& operator<<(std::ostream& os, const ConflictAvoidanceType& type) {
   os << ConflictAvoidanceTypeToString(type);
   return os;
 }
@@ -2186,15 +2179,15 @@ std::string GarbageCollectionTypeToString(GarbageCollectionType type) {
       return "ON";
     }
     default: {
-      throw ConversionException(
-          StringUtil::Format("No string conversion for GarbageCollectionType value '%d'",
-                             static_cast<int>(type)));
+      throw ConversionException(StringUtil::Format(
+          "No string conversion for GarbageCollectionType value '%d'",
+          static_cast<int>(type)));
     }
   }
   return "INVALID";
 }
 
-GarbageCollectionType StringToGarbageCollectionType(const std::string &str) {
+GarbageCollectionType StringToGarbageCollectionType(const std::string& str) {
   std::string upper_str = StringUtil::Upper(str);
   if (upper_str == "INVALID") {
     return GarbageCollectionType::INVALID;
@@ -2204,7 +2197,8 @@ GarbageCollectionType StringToGarbageCollectionType(const std::string &str) {
     return GarbageCollectionType::ON;
   } else {
     throw ConversionException(StringUtil::Format(
-        "No GarbageCollectionType conversion from string '%s'", upper_str.c_str()));
+        "No GarbageCollectionType conversion from string '%s'",
+        upper_str.c_str()));
   }
   return GarbageCollectionType::INVALID;
 }
@@ -2258,7 +2252,6 @@ std::ostream& operator<<(std::ostream& os, const LoggingType& type) {
   return os;
 }
 
-
 std::string LogRecordTypeToString(LogRecordType type) {
   switch (type) {
     case LogRecordType::INVALID: {
@@ -2286,9 +2279,9 @@ std::string LogRecordTypeToString(LogRecordType type) {
       return "EPOCH_END";
     }
     default: {
-      throw ConversionException(
-          StringUtil::Format("No string conversion for LogRecordType value '%d'",
-                             static_cast<int>(type)));
+      throw ConversionException(StringUtil::Format(
+          "No string conversion for LogRecordType value '%d'",
+          static_cast<int>(type)));
     }
   }
   return "INVALID";
@@ -2324,7 +2317,6 @@ std::ostream& operator<<(std::ostream& os, const LogRecordType& type) {
   return os;
 }
 
-
 //===--------------------------------------------------------------------===//
 // CheckpointingType - String Utilities
 //===--------------------------------------------------------------------===//
@@ -2357,11 +2349,9 @@ CheckpointingType StringToCheckpointingType(const std::string& str) {
     return CheckpointingType::OFF;
   } else if (upper_str == "ON") {
     return CheckpointingType::ON;
-  }
-  else {
-    throw ConversionException(
-        StringUtil::Format("No CheckpointingType conversion from string '%s'",
-                           upper_str.c_str()));
+  } else {
+    throw ConversionException(StringUtil::Format(
+        "No CheckpointingType conversion from string '%s'", upper_str.c_str()));
   }
   return CheckpointingType::INVALID;
 }
@@ -2370,8 +2360,6 @@ std::ostream& operator<<(std::ostream& os, const CheckpointingType& type) {
   os << CheckpointingTypeToString(type);
   return os;
 }
-
-
 
 type::TypeId PostgresValueTypeToPelotonValueType(PostgresValueType type) {
   switch (type) {
@@ -2482,9 +2470,9 @@ std::string EntityTypeToString(EntityType type) {
       return "PREPARED_STATEMENT";
     }
     default: {
-      throw ConversionException(StringUtil::Format(
-          "No string conversion for EntityType value '%d'",
-          static_cast<int>(type)));
+      throw ConversionException(
+          StringUtil::Format("No string conversion for EntityType value '%d'",
+                             static_cast<int>(type)));
     }
   }
   return "INVALID";
@@ -2505,9 +2493,8 @@ EntityType StringToEntityType(const std::string& str) {
   } else if (upper_str == "PREPARED_STATEMENT") {
     return EntityType::PREPARED_STATEMENT;
   } else {
-    throw ConversionException(
-        StringUtil::Format("No EntityType conversion from string '%s'",
-                           upper_str.c_str()));
+    throw ConversionException(StringUtil::Format(
+        "No EntityType conversion from string '%s'", upper_str.c_str()));
   }
   return EntityType::INVALID;
 }
@@ -2545,9 +2532,9 @@ std::string RWTypeToString(RWType type) {
       return "INS_DEL";
     }
     default: {
-      throw ConversionException(StringUtil::Format(
-          "No string conversion for RWType value '%d'",
-          static_cast<int>(type)));
+      throw ConversionException(
+          StringUtil::Format("No string conversion for RWType value '%d'",
+                             static_cast<int>(type)));
     }
   }
   return "INVALID";
@@ -2570,9 +2557,8 @@ RWType StringToRWType(const std::string& str) {
   } else if (upper_str == "INS_DEL") {
     return RWType::INS_DEL;
   } else {
-    throw ConversionException(
-        StringUtil::Format("No RWType conversion from string '%s'",
-                           upper_str.c_str()));
+    throw ConversionException(StringUtil::Format(
+        "No RWType conversion from string '%s'", upper_str.c_str()));
   }
   return RWType::INVALID;
 }
@@ -2581,7 +2567,6 @@ std::ostream& operator<<(std::ostream& os, const RWType& type) {
   os << RWTypeToString(type);
   return os;
 }
-
 
 //===--------------------------------------------------------------------===//
 // GCVersionType - String Utilities
@@ -2641,9 +2626,8 @@ GCVersionType StringToGCVersionType(const std::string& str) {
   } else if (upper_str == "ABORT_INS_DEL") {
     return GCVersionType::ABORT_INS_DEL;
   } else {
-    throw ConversionException(
-        StringUtil::Format("No GCVersionType conversion from string '%s'",
-                           upper_str.c_str()));
+    throw ConversionException(StringUtil::Format(
+        "No GCVersionType conversion from string '%s'", upper_str.c_str()));
   }
   return GCVersionType::INVALID;
 }
@@ -2652,7 +2636,6 @@ std::ostream& operator<<(std::ostream& os, const GCVersionType& type) {
   os << GCVersionTypeToString(type);
   return os;
 }
-
 
 //===--------------------------------------------------------------------===//
 // Optimizer
@@ -2679,9 +2662,9 @@ std::string PropertyTypeToString(PropertyType type) {
       return "LIMIT";
     }
     default: {
-      throw ConversionException(StringUtil::Format(
-          "No string conversion for PropertyType value '%d'",
-          static_cast<int>(type)));
+      throw ConversionException(
+          StringUtil::Format("No string conversion for PropertyType value '%d'",
+                             static_cast<int>(type)));
     }
   }
   return "INVALID";
@@ -2702,9 +2685,8 @@ PropertyType StringToPropertyType(const std::string& str) {
   } else if (upper_str == "LIMIT") {
     return PropertyType::LIMIT;
   } else {
-    throw ConversionException(
-        StringUtil::Format("No PropertyType conversion from string '%s'",
-                           upper_str.c_str()));
+    throw ConversionException(StringUtil::Format(
+        "No PropertyType conversion from string '%s'", upper_str.c_str()));
   }
   return PropertyType::INVALID;
 }

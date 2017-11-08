@@ -32,14 +32,14 @@
 namespace peloton {
 namespace tcop {
 
-TrafficCop::TrafficCop():is_queuing_(false) {
+TrafficCop::TrafficCop() : is_queuing_(false) {
   LOG_TRACE("Starting a new TrafficCop");
   optimizer_.reset(new optimizer::Optimizer);
-//  result_ = ResultType::QUEUING;
+  //  result_ = ResultType::QUEUING;
 }
 
-TrafficCop::TrafficCop(void(* task_callback)(void *), void *task_callback_arg):
-    task_callback_(task_callback), task_callback_arg_(task_callback_arg) {
+TrafficCop::TrafficCop(void (*task_callback)(void *), void *task_callback_arg)
+    : task_callback_(task_callback), task_callback_arg_(task_callback_arg) {
   optimizer_.reset(new optimizer::Optimizer);
 }
 
@@ -48,7 +48,7 @@ void TrafficCop::Reset() {
   // clear out the stack
   swap(tcop_txn_state_, new_tcop_txn_state);
   optimizer_->Reset();
-//  result_ = ResultType::QUEUING;
+  //  result_ = ResultType::QUEUING;
 }
 
 TrafficCop::~TrafficCop() {
@@ -97,12 +97,11 @@ ResultType TrafficCop::BeginQueryHelper(const size_t thread_id) {
   return ResultType::SUCCESS;
 }
 
-
-//Pass the log manager to commit transaction
-ResultType TrafficCop::CommitQueryHelper(logging::WalLogManager* log_manager) {
+// Pass the log manager to commit transaction
+ResultType TrafficCop::CommitQueryHelper(logging::WalLogManager *log_manager) {
   // do nothing if we have no active txns
-  if (tcop_txn_state_.empty()){
-      return ResultType::NOOP;
+  if (tcop_txn_state_.empty()) {
+    return ResultType::NOOP;
   }
   auto &curr_state = tcop_txn_state_.top();
   tcop_txn_state_.pop();
@@ -143,7 +142,8 @@ ResultType TrafficCop::ExecuteStatement(
     const std::vector<type::Value> &params, UNUSED_ATTRIBUTE const bool unnamed,
     std::shared_ptr<stats::QueryMetric::QueryParams> param_stats,
     const std::vector<int> &result_format, std::vector<StatementResult> &result,
-    int &rows_changed, UNUSED_ATTRIBUTE std::string &error_message, logging::WalLogManager *log_manager,
+    int &rows_changed, UNUSED_ATTRIBUTE std::string &error_message,
+    logging::WalLogManager *log_manager,
     const size_t thread_id UNUSED_ATTRIBUTE) {
   if (settings::SettingsManager::GetInt(settings::SettingId::stats_mode) !=
       STATS_TYPE_INVALID) {
@@ -156,7 +156,8 @@ ResultType TrafficCop::ExecuteStatement(
             statement->GetQueryString().c_str());
   LOG_TRACE("Execute Statement Plan:\n%s",
             planner::PlanUtil::GetInfo(statement->GetPlanTree().get()).c_str());
-  LOG_TRACE("Execute Statement Query Type: %s", statement->GetQueryTypeString().c_str());
+  LOG_TRACE("Execute Statement Query Type: %s",
+            statement->GetQueryTypeString().c_str());
   LOG_TRACE("----QueryType: %d--------", (int)statement->GetQueryType());
   try {
     switch (statement->GetQueryType()) {
@@ -173,7 +174,8 @@ ResultType TrafficCop::ExecuteStatement(
         if (is_queuing_) {
           return ResultType::QUEUING;
         }
-        // if in ExecuteStatementPlan, these is no need to queue task, like 'BEGIN', directly return result
+        // if in ExecuteStatementPlan, these is no need to queue task, like
+        // 'BEGIN', directly return result
         return ExecuteStatementGetResult(rows_changed);
     }
   } catch (Exception &e) {
@@ -187,7 +189,7 @@ ResultType TrafficCop::ExecuteStatementGetResult(int &rows_changed) {
             ResultTypeToString(p_status_.m_result).c_str());
   rows_changed = p_status_.m_processed;
   LOG_TRACE("rows_changed %d", rows_changed);
- // is_queuing_ = false;
+  // is_queuing_ = false;
   return p_status_.m_result;
 }
 
@@ -220,8 +222,10 @@ executor::ExecuteResult TrafficCop::ExecuteStatementPlan(
     PL_ASSERT(plan);
     PL_ASSERT(task_callback_);
     PL_ASSERT(task_callback_arg_);
-    ExecutePlanArg* arg = new ExecutePlanArg(plan, txn, params, result, result_format, p_status_);
-    threadpool::MonoQueuePool::GetInstance().SubmitTask(ExecutePlanWrapper, arg, task_callback_, task_callback_arg_);
+    ExecutePlanArg *arg =
+        new ExecutePlanArg(plan, txn, params, result, result_format, p_status_);
+    threadpool::MonoQueuePool::GetInstance().SubmitTask(
+        ExecutePlanWrapper, arg, task_callback_, task_callback_arg_);
     LOG_TRACE("Submit Task into MonoQueuePool");
 
     is_queuing_ = true;
@@ -231,64 +235,66 @@ executor::ExecuteResult TrafficCop::ExecuteStatementPlan(
     // otherwise, we have already aborted
     p_status_.m_result = ResultType::ABORTED;
   }
-  LOG_TRACE("Check Tcop_txn_state Size After ExecuteStatementPlan %lu", tcop_txn_state_.size());
+  LOG_TRACE("Check Tcop_txn_state Size After ExecuteStatementPlan %lu",
+            tcop_txn_state_.size());
   return p_status_;
 }
 
 void TrafficCop::ExecutePlanWrapper(void *arg_ptr) {
   LOG_TRACE("Entering ExecutePlanWrapper");
   PL_ASSERT(arg_ptr);
-  ExecutePlanArg* arg = (ExecutePlanArg*) arg_ptr;
+  ExecutePlanArg *arg = (ExecutePlanArg *)arg_ptr;
   PL_ASSERT(arg->plan_);
   PL_ASSERT(arg->txn_);
-//  PL_ASSERT(&arg->result_);
+  //  PL_ASSERT(&arg->result_);
   PL_ASSERT(&arg->params_);
   executor::PlanExecutor::ExecutePlan(arg->plan_, arg->txn_, arg->params_,
                                       arg->result_, arg->result_format_,
                                       arg->p_status_);
-  delete(arg);
+  delete (arg);
 }
 
-//Pass log manager to CommitTransaction
-void TrafficCop::ExecuteStatementPlanGetResult(logging::WalLogManager* log_manager) {
+// Pass log manager to CommitTransaction
+void TrafficCop::ExecuteStatementPlanGetResult(
+    logging::WalLogManager *log_manager) {
   bool init_failure = false;
   if (p_status_.m_result == ResultType::FAILURE) {
     // only possible if init failed
     init_failure = true;
   }
-  //If there is a single commit statement,
-  //the transaction has been killed when GetResult is called again.
-  if(GetCurrentTxnState().first != nullptr){
-  auto txn_result = GetCurrentTxnState().first->GetResult();
-  if (single_statement_txn_ == true || init_failure == true ||
-      txn_result == ResultType::FAILURE) {
-    LOG_TRACE(
-        "About to commit: single stmt: %d, init_failure: %d, txn_result: %s",
-        single_statement_txn_, init_failure,
-        ResultTypeToString(txn_result).c_str());
-    switch (txn_result) {
-      case ResultType::SUCCESS:
-        // Commit single statement
-        LOG_TRACE("Commit Transaction");
-        p_status_.m_result = CommitQueryHelper(log_manager);
-        break;
+  // If there is a single commit statement,
+  // the transaction has been killed when GetResult is called again.
+  if (GetCurrentTxnState().first != nullptr) {
+    auto txn_result = GetCurrentTxnState().first->GetResult();
+    if (single_statement_txn_ == true || init_failure == true ||
+        txn_result == ResultType::FAILURE) {
+      LOG_TRACE(
+          "About to commit: single stmt: %d, init_failure: %d, txn_result: %s",
+          single_statement_txn_, init_failure,
+          ResultTypeToString(txn_result).c_str());
+      switch (txn_result) {
+        case ResultType::SUCCESS:
+          // Commit single statement
+          LOG_TRACE("Commit Transaction");
+          p_status_.m_result = CommitQueryHelper(log_manager);
+          break;
 
-      case ResultType::FAILURE:
-      default:
-        // Abort
-        LOG_TRACE("Abort Transaction");
-        if (single_statement_txn_ == true) {
-          LOG_TRACE("Tcop_txn_state size: %lu", tcop_txn_state_.size());
-          p_status_.m_result = AbortQueryHelper();
-        } else {
-          tcop_txn_state_.top().second = ResultType::ABORTED;
-          p_status_.m_result = ResultType::ABORTED;
-        }
+        case ResultType::FAILURE:
+        default:
+          // Abort
+          LOG_TRACE("Abort Transaction");
+          if (single_statement_txn_ == true) {
+            LOG_TRACE("Tcop_txn_state size: %lu", tcop_txn_state_.size());
+            p_status_.m_result = AbortQueryHelper();
+          } else {
+            tcop_txn_state_.top().second = ResultType::ABORTED;
+            p_status_.m_result = ResultType::ABORTED;
+          }
+      }
     }
-  }
   } else {
-      //COMMIT; statement
-      p_status_.m_result = ResultType::QUEUING;
+    // COMMIT; statement
+    p_status_.m_result = ResultType::QUEUING;
   }
 }
 
@@ -345,8 +351,8 @@ std::shared_ptr<Statement> TrafficCop::PrepareStatement(
       throw ParserException("Error parsing SQL statement");
     }
     LOG_TRACE("Optimizer Build Peloton Plan Tree...");
-    auto plan =
-        optimizer_->BuildPelotonPlanTree(sql_stmt, default_database_name_, tcop_txn_state_.top().first);
+    auto plan = optimizer_->BuildPelotonPlanTree(
+        sql_stmt, default_database_name_, tcop_txn_state_.top().first);
     statement->SetPlanTree(plan);
     // Get the tables that our plan references so that we know how to
     // invalidate it at a later point when the catalog changes
@@ -354,7 +360,7 @@ std::shared_ptr<Statement> TrafficCop::PrepareStatement(
         planner::PlanUtil::GetTablesReferenced(plan.get());
     statement->SetReferencedTables(table_oids);
 
-    for (auto& stmt : sql_stmt->GetStatements()) {
+    for (auto &stmt : sql_stmt->GetStatements()) {
       LOG_TRACE("SQLStatement: %s", stmt->GetInfo().c_str());
       if (stmt->GetType() == StatementType::SELECT) {
         auto tuple_descriptor = GenerateTupleDescriptor(stmt.get());
@@ -403,7 +409,7 @@ void TrafficCop::GetDataTables(
 
   // Query has multiple tables. Recursively add all tables
   else {
-    for (auto& table : from_table->list) {
+    for (auto &table : from_table->list) {
       GetDataTables(table.get(), target_tables);
     }
   }
@@ -431,7 +437,7 @@ std::vector<FieldInfo> TrafficCop::GenerateTupleDescriptor(
   GetDataTables(select_stmt->from_table.get(), target_tables);
 
   int count = 0;
-  for (auto& expr : select_stmt->select_list) {
+  for (auto &expr : select_stmt->select_list) {
     count++;
     if (expr->GetExpressionType() == ExpressionType::STAR) {
       for (auto target_table : target_tables) {
@@ -504,8 +510,7 @@ FieldInfo TrafficCop::GetColumnFieldForValueType(std::string column_name,
     default: {
       // Type not Identified
       LOG_ERROR("Unrecognized field type '%s' for field '%s'",
-                TypeIdToString(column_type).c_str(),
-                column_name.c_str());
+                TypeIdToString(column_type).c_str(), column_name.c_str());
       field_type = PostgresValueType::TEXT;
       field_size = 255;
       break;
