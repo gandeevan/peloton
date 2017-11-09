@@ -647,7 +647,6 @@ void NetworkConnection::Reset() {
 
 void NetworkConnection::StateMachine(NetworkConnection *conn) {
   bool done = false;
-
   while (done == false) {
     LOG_TRACE("current state: %d", (int)conn->state);
     switch (conn->state) {
@@ -784,15 +783,8 @@ void NetworkConnection::StateMachine(NetworkConnection *conn) {
         }
 
         conn->protocol_handler_->GetResult();
-        if (conn->traffic_cop_.is_logging_) done = true;
-        conn->TransitState(ConnState::CONN_WRITE);
-        break;
-      }
-
-      case ConnState::CONN_LOGGING: {
-        if (event_add(conn->network_event, nullptr) < 0) {
-          LOG_ERROR("Failed to add event");
-          PL_ASSERT(false);
+        if (conn->traffic_cop_.is_logging_) {
+            done = true;
         }
         conn->TransitState(ConnState::CONN_WRITE);
         break;
