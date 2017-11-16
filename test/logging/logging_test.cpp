@@ -26,6 +26,8 @@
 #include "type/value_factory.h"
 #include "storage/tile_group.h"
 #include "storage/tile_group_header.h"
+#include "catalog/catalog.h"
+#include "concurrency/transaction_manager_factory.h"
 // #include "storage/tile.h"
 
 // #include "executor/mock_executor.h"
@@ -46,28 +48,38 @@
  class LoggingTests : public PelotonTest {};
 
  TEST_F(LoggingTests, BasicLoggingTest) {
+     auto catalog = catalog::Catalog::GetInstance();
+    auto txn = concurrency::TransactionManagerFactory::GetInstance().BeginTransaction(IsolationLevelType::SERIALIZABLE);
      std::vector<catalog::Column> cols;
      cols.push_back(catalog::Column(type::TypeId::INTEGER,8,"a",true,0));
      cols.push_back(catalog::Column(type::TypeId::INTEGER,8,"b",true,8));
      cols.push_back(catalog::Column(type::TypeId::INTEGER,8,"c",true,16));
-     catalog::Schema* s = new catalog::Schema(cols);
-     storage::TempTable* dt = storage::TableFactory::GetTempTable(s,true);
+     catalog::Schema *s = new catalog::Schema(cols);
+     catalog->CreateDatabase(DEFAULT_DB_NAME, txn);
+     catalog->CreateTable("default_database", "tab", std::unique_ptr<catalog::Schema>(s), txn);
+     //storage::TempTable* dt = storage::TableFactory::GetTempTable(s,true);
      storage::Tuple* t = new storage::Tuple(s,true);
      t->SetValue(0,type::ValueFactory::GetIntegerValue(1));
 t->SetValue(1,type::ValueFactory::GetIntegerValue(1));
 t->SetValue(2,type::ValueFactory::GetIntegerValue(1));
 storage::Tuple* t2 = new storage::Tuple(s,true);
-t->SetValue(0,type::ValueFactory::GetIntegerValue(2));
-t->SetValue(1,type::ValueFactory::GetIntegerValue(2));
-t->SetValue(2,type::ValueFactory::GetIntegerValue(2));
+t2->SetValue(0,type::ValueFactory::GetIntegerValue(2));
+t2->SetValue(1,type::ValueFactory::GetIntegerValue(2));
+t2->SetValue(2,type::ValueFactory::GetIntegerValue(2));
 
+
+    auto dt = catalog->GetTableWithName("default_database", "tab", txn);
      dt->InsertTuple(t);
      dt->InsertTuple(t2);
     dt->GetTileGroup(0)->GetHeader()->SetEvictable(true);
     eviction::Evicter* e = new eviction::Evicter();
     e->EvictDataFromTable(dt);
-    auto ptr = dt->GetTileGroup(0);
-    dt->GetTileGroupCount();
+    delete t;
+    delete t2;
+    delete e;
+    delete s;
+    delete txn;
+    LOG_DEBUG("TileGroup count: %lu", dt->GetTileGroupCount());
  }
 
 //   std::unique_ptr<storage::DataTable> table(

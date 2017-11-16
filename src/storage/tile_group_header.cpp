@@ -34,6 +34,7 @@ TileGroupHeader::TileGroupHeader(const BackendType &backend_type,
       tile_group(nullptr),
       data(nullptr),
       num_tuple_slots(tuple_count),
+      evicted_(false),
       next_tuple_slot(0),
       tile_header_lock() {
   header_size = num_tuple_slots * header_entry_size;

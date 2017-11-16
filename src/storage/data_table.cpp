@@ -688,9 +688,13 @@ oid_t DataTable::AddDefaultTileGroup() {
   return AddDefaultTileGroup(active_tile_group_id);
 }
 
-void DataTable::DeleteTileGroup(const std::size_t &tile_group_offset UNUSED_ATTRIBUTE){
-//    TileGroup* tg = GetTileGroup(tile_group_offset);
-//    tile_groups_.Erase(tile_group_offset,)
+void DataTable::DeleteTileGroup(const std::size_t &tile_group_offset){
+    std::shared_ptr<TileGroup> tg = GetTileGroup(tile_group_offset);
+    tile_groups_.Erase(tile_group_offset,0);
+    catalog::Manager::GetInstance().DropTileGroup(tg->GetTileGroupId());
+    if(active_tile_groups_[number_of_tuples_ % active_tilegroup_count_] == tg)
+        active_tile_groups_[number_of_tuples_ % active_tilegroup_count_].reset();
+    tile_group_count_--;
 }
 
 oid_t DataTable::AddDefaultTileGroup(const size_t &active_tile_group_id) {

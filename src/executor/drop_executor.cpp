@@ -18,6 +18,9 @@
 #include "concurrency/transaction.h"
 #include "executor/executor_context.h"
 #include "planner/drop_plan.h"
+#include "eviction/evicter.h"
+#include "storage/tile_group.h"
+#include "storage/tile_group_header.h"
 
 namespace peloton {
 namespace executor {
@@ -40,26 +43,23 @@ bool DropExecutor::DInit() {
 
 bool DropExecutor::DExecute() {
   LOG_TRACE("Executing Drop...");
-  const planner::DropPlan &node = GetPlanNode<planner::DropPlan>();
-  DropType dropType = node.GetDropType();
-  switch (dropType) {
-    case DropType::TABLE: {
-      auto table_name = node.GetTableName();
-      auto current_txn = context_->GetTransaction();
+  const planner::DropPlan &node UNUSED_ATTRIBUTE = GetPlanNode<planner::DropPlan>();
+  //DropType dropType = node.GetDropType();
+ // switch (dropType) {
+ //   case DropType::TABLE: {
+      auto table_name UNUSED_ATTRIBUTE= node.GetTableName();
+      auto current_txn UNUSED_ATTRIBUTE= context_->GetTransaction();
 
-      if (node.IsMissing()) {
-        try {
-          auto table_object = catalog::Catalog::GetInstance()->GetTableObject(
+
+          auto table_object UNUSED_ATTRIBUTE = catalog::Catalog::GetInstance()->GetTableWithName(
               DEFAULT_DB_NAME, table_name, current_txn);
-        } catch (CatalogException &e) {
-          LOG_TRACE("Table %s does not exist.", table_name.c_str());
-          return false;
-        }
-      }
+          auto evicter = new eviction::Evicter();
 
-      ResultType result = catalog::Catalog::GetInstance()->DropTable(
-          DEFAULT_DB_NAME, table_name, current_txn);
-      current_txn->SetResult(result);
+        for (int i = 1; i<50; i++)
+        table_object->GetTileGroup(i)->GetHeader()->SetEvictable(true);
+        evicter->EvictDataFromTable(table_object);
+      delete evicter;
+      current_txn->SetResult(ResultType::SUCCESS);
 
       if (current_txn->GetResult() == ResultType::SUCCESS) {
         LOG_TRACE("Dropping table succeeded!");
@@ -67,9 +67,8 @@ bool DropExecutor::DExecute() {
         LOG_TRACE("Result is: %s",
                   ResultTypeToString(current_txn->GetResult()).c_str());
       }
-      break;
-    }
-    case DropType::TRIGGER: {
+
+    /*case DropType::TRIGGER: {
       std::string table_name = node.GetTableName();
       std::string trigger_name = node.GetTriggerName();
 
@@ -99,7 +98,7 @@ bool DropExecutor::DExecute() {
           StringUtil::Format("Drop type %d not supported yet.\n", dropType));
     }
   }
-
+*/
   return false;
 }
 

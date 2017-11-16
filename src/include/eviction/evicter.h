@@ -7,9 +7,9 @@ class DataTable;
 namespace eviction {
 class Evicter {
 public:
-    void EvictDataFromTable (storage::AbstractTable* table);
+    void EvictDataFromTable (storage::DataTable* table);
 private:
-    void EvictTileGroup (std::shared_ptr<storage::TileGroup> tg);
+    void EvictTileGroup (std::shared_ptr<storage::TileGroup> *tg);
 };
 
 }
