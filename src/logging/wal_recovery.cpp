@@ -196,7 +196,7 @@ bool WalRecovery::ReplayLogFile(FileHandle &file_handle) {
     // Adjust the buffer
     if ((size_t)length > buf_size) {
       buffer.reset(new char[(int)(length * 1.2)]);
-      buf_size = (size_t)length;
+      buf_size = (size_t)length * 1.2;
     }
 
     if (LoggingUtil::ReadNBytesFromFile(file_handle, (void *)buffer.get(),
