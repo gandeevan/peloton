@@ -12,9 +12,11 @@
 
 #pragma once
 
+
 #include "logging/log_record.h"
 #include "type/types.h"
 #include "common/logger.h"
+
 
 namespace peloton {
 namespace logging {
@@ -53,6 +55,9 @@ class WalLogManager {
       : task_callback_(task_callback), task_callback_arg_(task_callback_arg) {}
   ~WalLogManager() {}
 
+
+  static void ReplicateTransaction(std::vector<LogRecord> log_records);
+
   static void SetDirectory(std::string logging_dir);
 
   static void WriteTransactionWrapper(void *args);
@@ -68,11 +73,23 @@ class WalLogManager {
     task_callback_ = task_callback;
     task_callback_arg_ = task_callback_arg;
   }
+
+
+  void DoSyncReplication(bool sync) {
+    sync_replication_ = sync;
+  }
+
+  static bool IsReplicationSync(){
+    return sync_replication_;
+  }
+
   bool is_running_ = false;
+
+
  private:
   void (*task_callback_)(void *);
   void *task_callback_arg_;
-
+  static bool sync_replication_;
 
 };
 

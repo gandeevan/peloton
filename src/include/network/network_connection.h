@@ -68,6 +68,7 @@ class NetworkConnection {
 
   logging::WalLogManager log_manager_;
 
+
  private:
   Buffer rbuf_;                     // Socket's read buffer
   Buffer wbuf_;                     // Socket's write buffer

@@ -28,8 +28,8 @@ add_custom_target(libpg_query ALL
 
 # creates 'srcs' lists
 peloton_pickup_peloton_sources(${PROJECT_SOURCE_DIR})
-
 add_library(peloton SHARED ${srcs})
+#add_library(peloton SHARED ${srcs} logging/wal_log_replicator.cpp)
 
 target_link_libraries(peloton ${Peloton_LINKER_LIBS} peloton-proto ${PROJECT_SOURCE_DIR}/third_party/libpg_query/libpg_query.a)
 
@@ -42,8 +42,8 @@ set_target_properties(peloton PROPERTIES
 ##################################################################################
 
 # --[ Peloton
-
 set(peloton_main ${PROJECT_SOURCE_DIR}/src/main/peloton/peloton.cpp)
+#set(peloton_main ${PROJECT_SOURCE_DIR}/src/main/peloton/peloton.cpp include/logging/wal_log_replicator.h)
 add_executable(peloton-bin ${peloton_main})
 target_link_libraries(peloton-bin peloton)
 set_target_properties(peloton-bin PROPERTIES OUTPUT_NAME peloton)
