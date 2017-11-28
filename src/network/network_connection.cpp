@@ -95,7 +95,7 @@ void NetworkConnection::Init(short event_flags, NetworkThread *thread,
 
   // Registering the logger callback
   log_manager_.SetTaskCallback(TriggerStateMachineLog, logpool_event);
-  log_manager_.DoSyncReplication(false);
+  //log_manager_.DoSyncReplication(false);
 }
 
 void NetworkConnection::TriggerStateMachine(void *arg) {

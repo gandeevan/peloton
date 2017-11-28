@@ -17,6 +17,7 @@
 #include "threadpool/logger_queue_pool.h"
 #include "logging/wal_recovery.h"
 #include "logging/wal_logger.h"
+#include "logging/wal_log_replicator.h"
 
 namespace peloton {
 namespace logging {
@@ -73,8 +74,8 @@ void WalLogManager::DoRecovery() {
 
 void WalLogManager::ReplicateTransaction(std::vector<LogRecord> log_records){
 
-  WalReplicator *wr = new WalReplicator(sync_replication_);
-  wr->ReplicateTransaction(log_records);
+  WalReplicator *wr = new WalReplicator();
+  wr->ReplicateTransactionAsync(log_records);
   delete wr;
 
 }

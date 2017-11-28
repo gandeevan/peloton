@@ -70,13 +70,7 @@ void WalReplicator::ReplicateTransactionSync(std::vector<LogRecord> log_records)
     LOG_DEBUG("Synchronous replication not implemented");
 }
 
-void WalReplicator::ReplicateTransaction(std::vector<LogRecord> log_records){
-    if(sync_replication_){
-        ReplicateTransactionSync(log_records);
-    } else {
-        ReplicateTransactionAsync(log_records);
-    }
-}
+
 
 
 

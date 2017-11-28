@@ -75,13 +75,9 @@ class WalLogManager {
   }
 
 
-  void DoSyncReplication(bool sync) {
-    sync_replication_ = sync;
-  }
-
-  static bool IsReplicationSync(){
-    return sync_replication_;
-  }
+//  void DoSyncReplication(bool sync) {
+//    sync_replication_ = sync;
+//  }
 
   bool is_running_ = false;
 
@@ -89,7 +85,7 @@ class WalLogManager {
  private:
   void (*task_callback_)(void *);
   void *task_callback_arg_;
-  static bool sync_replication_;
+  //static bool sync_replication_;
 
 };
 

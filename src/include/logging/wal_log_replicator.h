@@ -27,7 +27,7 @@ namespace logging {
 class WalReplicator{
 
   private:
-    bool sync_replication_;
+
 
     // TODO : maintain a vector of endpoints
     // vector<pair<string, string>> endpoints;
@@ -35,17 +35,13 @@ class WalReplicator{
   public:
 
     WalReplicator() {}
-
-    WalReplicator(bool sync)
-            : sync_replication_(sync) {}
-
     ~WalReplicator() {}
 
-    void ReplicateTransaction(std::vector<LogRecord> log_records);
-
-  private:
     void ReplicateTransactionSync(std::vector<LogRecord> log_records);
     void ReplicateTransactionAsync(std::vector<LogRecord> log_records);
+
+
+
 };
 
 }
