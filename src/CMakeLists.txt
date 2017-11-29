@@ -14,6 +14,17 @@ peloton_default_properties(peloton-proto)
 
 ##################################################################################
 
+file(GLOB grpc_files grpc/*.proto)
+peloton_grpc_generate_cpp_py(${proto_gen_folder} grpc_srcs grpc_hdrs grpc_python ${grpc_files})
+
+# include python files either to force generation
+add_library(peloton-grpc STATIC ${grpc_hdrs} ${grpc_srcs} ${grpc_python})
+set(Peloton_LINKER_LIBS peloton-grpc ${Peloton_LINKER_LIBS}) # note, crucial to prepend!
+peloton_default_properties(peloton-grpc)
+
+
+##################################################################################
+
 # --[ Libpg_query library
 
 add_custom_target(libpg_query ALL
@@ -31,7 +42,7 @@ peloton_pickup_peloton_sources(${PROJECT_SOURCE_DIR})
 add_library(peloton SHARED ${srcs})
 #add_library(peloton SHARED ${srcs} logging/wal_log_replicator.cpp)
 
-target_link_libraries(peloton ${Peloton_LINKER_LIBS} peloton-proto ${PROJECT_SOURCE_DIR}/third_party/libpg_query/libpg_query.a)
+target_link_libraries(peloton ${Peloton_LINKER_LIBS} peloton-grpc peloton-proto ${PROJECT_SOURCE_DIR}/third_party/libpg_query/libpg_query.a)
 
 peloton_default_properties(peloton)
 set_target_properties(peloton PROPERTIES

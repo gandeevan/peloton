@@ -1,0 +1,43 @@
+
+
+package peloton.logging;
+
+
+enum ProtoRequestType{
+    SYNC = 1;
+    ASYNC = 2;
+    SEMISYNC = 3;
+}
+
+enum ProtoLogRecordType{
+    TUPLE_INSERT = 1;
+    TUPLE_DELETE = 2;
+    TUPLE_UPDATE = 3;
+}
+
+message ProtoItemPointer{
+    required uint32 block = 1;
+    required uint32 offset = 2;
+}
+
+
+message LogRecordReplayRequest{
+    required ProtoRequestType request_type_ = 3 ;
+    required ProtoLogRecordType log_record_type_ = 4;
+    required uint64 cid_ = 5;
+    required uint64 eid_ = 6;
+    required ProtoItemPointer old_tuple_pos_ = 7;
+    required ProtoItemPointer tuple_pos_ = 8;
+}
+
+message LogRecordReplayResponse{
+
+}
+
+// -----------------------------------
+// SERVICE
+// -----------------------------------
+
+service PelotonLoggingService {
+    rpc LogRecordReplay (LogRecordReplayRequest) returns (LogRecordReplayResponse);
+}

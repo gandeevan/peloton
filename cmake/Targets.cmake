@@ -99,7 +99,7 @@ function(peloton_pickup_peloton_sources root)
 
   # add proto to make them editable in IDEs too
   file(GLOB_RECURSE proto_files ${root}/src/peloton/*.proto)
-  list(APPEND srcs ${proto_files} ${murmur_srcs} ${libcount_srcs} ${libcds_srcs} ${jsoncpp_srcs})
+  list(APPEND srcs ${grpc_files} ${proto_files} ${murmur_srcs} ${libcount_srcs} ${libcds_srcs} ${jsoncpp_srcs})
 
   # propogate to parent scope
   set(srcs ${srcs} PARENT_SCOPE)
