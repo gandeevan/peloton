@@ -24,6 +24,8 @@
 #include "settings/settings_manager.h"
 #include "threadpool/mono_queue_pool.h"
 #include "logging/wal_log_manager.h"
+#include "logging/wal_secondary_replay.h"
+
 namespace peloton {
 
 ThreadPool thread_pool;
