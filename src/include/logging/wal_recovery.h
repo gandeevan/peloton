@@ -54,6 +54,8 @@ class WalRecovery {
 
   bool ReplayLogFile(FileHandle &file_handle);
 
+  bool ReplayLogFileOrReceivedBuffer(bool from_log_file, FileHandle &file_handle, char *received_buf, size_t len);
+
   bool InstallTupleRecord(LogRecordType type, storage::Tuple *tuple,
                           storage::DataTable *table, cid_t cur_cid,
                           ItemPointer location);
