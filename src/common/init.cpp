@@ -87,7 +87,7 @@ void PelotonInit::Initialize() {
   logging::WalLogManager::DoRecovery();
 
   logging::WalSecondaryReplay replay_obj;
-  replay_obj.RunServer();
+  replay_obj.RunReplayThread();
 }
 
 void PelotonInit::Shutdown() {

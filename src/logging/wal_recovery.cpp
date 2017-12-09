@@ -174,8 +174,12 @@ bool WalRecovery::InstallTupleRecord(LogRecordType type, storage::Tuple *tuple,
 bool WalRecovery::ReplayLogFile(FileHandle &file_handle) {
   PL_ASSERT(file_handle.file != nullptr &&
             file_handle.fd != INVALID_FILE_DESCRIPTOR);
+  return ReplayLogFileOrReceivedBuffer(true, file_handle, nullptr, 0);
+}
 
+bool WalRecovery::ReplayLogFileOrReceivedBuffer(bool from_log_file, FileHandle &file_handle, char *received_buf, size_t len) {
   // Status
+  LOG_TRACE("ReplayLogFileOrReceivedBuffer");
   cid_t current_cid = INVALID_CID;
   cid_t current_eid = INVALID_EID;
   std::unique_ptr<type::AbstractPool> pool(new type::EphemeralPool());
@@ -184,13 +188,23 @@ bool WalRecovery::ReplayLogFile(FileHandle &file_handle) {
   char length_buf[sizeof(int32_t)];
   std::vector<catalog::Column> columns;
   // Store the pg_index tuples to defer index creation
+  size_t buf_offset = 0;
   std::vector<std::unique_ptr<storage::Tuple>> indexes;
   while (true) {
     // Read the frame length
-    if (LoggingUtil::ReadNBytesFromFile(file_handle, (void *)&length_buf, 4) ==
-        false) {
-      LOG_TRACE("Reach the end of the log file");
-      break;
+    if (from_log_file) {
+      if (LoggingUtil::ReadNBytesFromFile(file_handle, (void *)&length_buf, 4) ==
+          false) {
+        LOG_TRACE("Reach the end of the log file");
+        break;
+      }
+    } else {
+      if (buf_offset >= len) {
+        LOG_TRACE("Reach the end of the received buffer");
+        break;
+      }
+      memcpy(length_buf, received_buf + buf_offset, 4);
+      buf_offset += 4;
     }
     CopySerializeInput length_decode((const void *)&length_buf, 4);
     int length = length_decode.ReadInt();
@@ -200,11 +214,16 @@ bool WalRecovery::ReplayLogFile(FileHandle &file_handle) {
       buf_size = (size_t)length * 1.2;
     }
 
-    if (LoggingUtil::ReadNBytesFromFile(file_handle, (void *)buffer.get(),
-                                        length) == false) {
-      LOG_ERROR("Unexpected file eof");
-      // TODO: How to handle damaged log file?
-      return false;
+    if (from_log_file) {
+      if (LoggingUtil::ReadNBytesFromFile(file_handle, (void *)buffer.get(),
+                                          length) == false) {
+        LOG_ERROR("Unexpected file eof");
+        // TODO: How to handle damaged log file?
+        return false;
+      }
+    } else {
+      memcpy(buffer.get(), received_buf + buf_offset, length);
+      buf_offset += length;
     }
     CopySerializeInput record_decode((const void *)buffer.get(), length);
 
@@ -256,10 +275,15 @@ bool WalRecovery::ReplayLogFile(FileHandle &file_handle) {
             case TABLE_CATALOG_OID:  // pg_table
             {
               bool is_column = true;
-              auto offset = ftell(file_handle.file);
+              auto offset = from_log_file ? ftell(file_handle.file) : buf_offset;
               while(is_column){
                   char length_buf[sizeof(int32_t)];
-                  LoggingUtil::ReadNBytesFromFile(file_handle, (void *)&length_buf, 4);
+                  if (from_log_file) {
+                    LoggingUtil::ReadNBytesFromFile(file_handle, (void *)&length_buf, 4);
+                  } else {
+                    memcpy(length_buf, received_buf + buf_offset, 4);
+                    buf_offset += 4;
+                  }
                   CopySerializeInput length_decode((const void *)&length_buf, 4);
                   int length = length_decode.ReadInt();
                   std::unique_ptr<char[]> buffer2(new char[buf_size]);
@@ -268,7 +292,12 @@ bool WalRecovery::ReplayLogFile(FileHandle &file_handle) {
                     buf_size = (size_t)length;
                   }
 
-                  LoggingUtil::ReadNBytesFromFile(file_handle, (void *)buffer.get(), length);
+                  if (from_log_file) {
+                    LoggingUtil::ReadNBytesFromFile(file_handle, (void *)buffer.get(), length);
+                  } else {
+                    memcpy(buffer.get(), received_buf + buf_offset, length);
+                    buf_offset += length;
+                  }
                   CopySerializeInput record_decode((const void *)buffer.get(), length);
                   record_decode.ReadEnumInSingleByte(); //Record type
                   eid_t record_eid = record_decode.ReadLong();
@@ -329,7 +358,11 @@ bool WalRecovery::ReplayLogFile(FileHandle &file_handle) {
               LOG_DEBUG("\n\n\nPG_TABLE\n\n\n");
               catalog::TableCatalog::GetInstance()->GetNextOid();
               columns.clear();
-              fseek(file_handle.file,offset,SEEK_SET);
+              if (from_log_file) {
+                fseek(file_handle.file,offset,SEEK_SET);
+              } else {
+                buf_offset = offset;
+              }
               break;
             }
             case COLUMN_CATALOG_OID:  // pg_attribute
