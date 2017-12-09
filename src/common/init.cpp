@@ -24,6 +24,8 @@
 #include "settings/settings_manager.h"
 #include "threadpool/mono_queue_pool.h"
 #include "logging/wal_log_manager.h"
+#include "logging/wal_secondary_replay.h"
+
 namespace peloton {
 
 ThreadPool thread_pool;
@@ -83,6 +85,9 @@ void PelotonInit::Initialize() {
   //Change this to config-defined constant
   logging::WalLogManager::SetDirectory(settings::SettingsManager::GetString(settings::SettingId::log_directory));
   logging::WalLogManager::DoRecovery();
+
+  logging::WalSecondaryReplay replay_obj;
+  replay_obj.RunServer();
 }
 
 void PelotonInit::Shutdown() {
