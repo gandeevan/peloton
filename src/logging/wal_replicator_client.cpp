@@ -20,8 +20,8 @@
 #include "logging/log_record.h"
 #include "logging/wal_logger.h"
 #include "logging/wal_replicator_client.h"
+#include "peloton/proto/wal_service.pb.h"
 #include "peloton/proto/wal_service.grpc.pb.h"
-//#include "peloton/proto/wal_service.grpc.pb.cc"
 
 using grpc::Channel;
 using grpc::ClientContext;
@@ -31,42 +31,37 @@ using grpc::Status;
 namespace peloton{
 namespace logging{
 
+void WalReplicatorClient::ReplayTransaction(std::vector<LogRecord> log_records){
 
-Status WalReplicatorClient::ReplayRecord(LogRecord log_record){
+    int buffer_len = 0;
 
-    WalLogger* wl = new WalLogger(0, "/tmp/log");
-
-    // TODO: Allocate request on heap maybe ?
+    std::string buffer;
     LogReplayRequest replay_request;
     LogReplayResponse replay_response;
     ClientContext context;
 
-    CopySerializeOutput *output = wl->WriteRecordToBuffer(log_record);
+    WalLogger* wl = new WalLogger(0, "/tmp/log");
 
-    replay_request.set_len(output->Size());
-    replay_request.set_data(output->Data());
+    for(LogRecord log_record : log_records){
+        CopySerializeOutput *output = wl->WriteRecordToBuffer(log_record);
+        buffer.append(output->Data(), output->Size());
+        buffer_len+=output->Size();
+        delete output;
+    }
 
-    /* grpc request */
-    Status status = stub_->ReplayRecord(&context, replay_request, &replay_response);
+    replay_request.set_len(buffer_len);
+    replay_request.set_data(buffer);
+
+    Status status = stub_->ReplayTransaction(&context, replay_request, &replay_response);
+
+    if(status.ok()){
+      LOG_INFO("GRPC REQUEST SUCCESS");
+    } else{
+      // TODO: what to do when rpc request fails ?
+      LOG_ERROR("GRPC REQUEST FAILED");
+    }
 
     delete wl;
-    delete output;
-
-    return status;
-}
-
-
-void WalReplicatorClient::ReplayTransaction(std::vector<LogRecord> log_records){
-    for(LogRecord log_record : log_records){
-        Status status = ReplayRecord(log_record);
-
-        if(status.ok()){
-            LOG_INFO("GRPC REQUEST SUCCESS: commit_id = %lu, epoch_id = %lu", log_record.GetCommitId(), log_record.GetEpochId());
-        } else{
-            // TODO: what to do when rpc request fails ?
-            LOG_ERROR("GRPC REQUEST FAILED");
-        }
-    }
 }
 
 

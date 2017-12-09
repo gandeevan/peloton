@@ -54,7 +54,7 @@ void WalLogManager::WriteTransaction(std::vector<LogRecord> log_records) {
 
 void WalLogManager::ReplayTransaction(std::vector<LogRecord> log_records){
   WalReplicationManager *wrm = new WalReplicationManager();
-  wrm->ReplayTransaction(log_records);
+  wrm->SendReplayTransactionRequest(log_records);
   delete wrm;
 }
 
