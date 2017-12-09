@@ -30,15 +30,19 @@ Status WalReplicatorService::ReplayTransaction(ServerContext* context,
   (void) context;
   (void) request;
   (void) response;
+  LOG_DEBUG("rEaching here !!");
 
   WalRecovery wr(0, "/tmp/log");
   FileHandle fh;
 
   Status status_code;
+  
+  std::cout<<" recv len: "<<*((int *)request->data().c_str())<<" "<<std::endl;
+  // char *buffer = new char [request->data().length()+1];
+  // std::strcpy (buffer, request->data().c_str());
+  std::cout<<"R ecaching here console"<<std::endl;
 
-  char *buffer = new char [request->data().length()+1];
-  std::strcpy (buffer, request->data().c_str());
-
+  char *buffer = (char *)request->data().c_str();
   if(wr.ReplayLogFileOrReceivedBuffer(false, fh, buffer, request->len())){
     status_code = Status::OK;
   } else{
@@ -48,6 +52,7 @@ Status WalReplicatorService::ReplayTransaction(ServerContext* context,
   delete[] buffer;
   return status_code;
 
+  return Status::OK;
 }
 
 void WalReplicatorServer::RunServer() {

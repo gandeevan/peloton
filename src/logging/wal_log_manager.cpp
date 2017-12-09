@@ -38,7 +38,7 @@ void WalLogManager::WriteTransactionWrapper(void* arg_ptr) {
   LogTransactionArg* arg = (LogTransactionArg*)arg_ptr;
 
   // replicate the log_records
-  ReplayTransaction(arg->log_records_);
+  // ReplayTransaction(arg->log_records_);
 
   // flush the log records to the disk
 

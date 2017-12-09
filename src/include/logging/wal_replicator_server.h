@@ -38,7 +38,7 @@ class WalReplicatorServer {
     ~WalReplicatorServer() {}
 
     std::string GetServerAddress(){
-      return std::string("127.0.0.1:")+std::to_string(port_num_);
+      return std::string("0.0.0.0:")+std::to_string(port_num_);
     }
 
     void RunServer();

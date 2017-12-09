@@ -79,6 +79,7 @@ class WalRecovery {
   std::atomic<int> max_replay_file_id_;
 
   const std::string logging_filename_prefix_ = "log";
+  static bool dont_start_epoch_;
 
 };
 }
