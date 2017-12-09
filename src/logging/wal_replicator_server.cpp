@@ -36,8 +36,7 @@ Status WalReplicatorService::ReplayTransaction(ServerContext* context,
 
   Status status_code;
 
-  char *buffer = new char [request->data().length()+1];
-  std::strcpy (buffer, request->data().c_str());
+  char *buffer = (char *)request->data().c_str();
 
   if(wr.ReplayLogFileOrReceivedBuffer(false, fh, buffer, request->len())){
     status_code = Status::OK;
@@ -45,7 +44,6 @@ Status WalReplicatorService::ReplayTransaction(ServerContext* context,
     status_code = Status::CANCELLED;
   }
 
-  delete[] buffer;
   return status_code;
 
 }

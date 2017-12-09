@@ -46,8 +46,12 @@ void WalReplicatorClient::ReplayTransaction(std::vector<LogRecord> log_records){
         delete output;
     }
 
+
     replay_request.set_len(buffer.size());
     replay_request.set_data(buffer);
+
+    std::cout<<"length = "<<*((int *)(replay_request.data().c_str()))<<std::flush;
+
 
     // actual rpc call
     Status status = stub_->ReplayTransaction(&context, replay_request, &replay_response);
@@ -56,7 +60,7 @@ void WalReplicatorClient::ReplayTransaction(std::vector<LogRecord> log_records){
       LOG_INFO("GRPC REQUEST SUCCESS");
     } else{
       // TODO: what to do when rpc request fails ?
-      LOG_ERROR("GRPC REQUEST FAILED");
+      LOG_ERROR("GRPC REQUEST FAILED - %s", status.error_message().c_str());
     }
 
     delete wl;
