@@ -29,7 +29,6 @@ namespace logging {
 class WalSecondaryReplay {
  public:
   void RunReplayThread();
-  static void RunServer();
  private:
   std::thread *replay_thread_;
 };

@@ -33,8 +33,6 @@ namespace logging{
 
 void WalReplicatorClient::ReplayTransaction(std::vector<LogRecord> log_records){
 
-    int buffer_len = 0;
-
     std::string buffer;
     LogReplayRequest replay_request;
     LogReplayResponse replay_response;
@@ -45,13 +43,13 @@ void WalReplicatorClient::ReplayTransaction(std::vector<LogRecord> log_records){
     for(LogRecord log_record : log_records){
         CopySerializeOutput *output = wl->WriteRecordToBuffer(log_record);
         buffer.append(output->Data(), output->Size());
-        buffer_len+=output->Size();
         delete output;
     }
 
-    replay_request.set_len(buffer_len);
+    replay_request.set_len(buffer.size());
     replay_request.set_data(buffer);
 
+    // actual rpc call
     Status status = stub_->ReplayTransaction(&context, replay_request, &replay_response);
 
     if(status.ok()){

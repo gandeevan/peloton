@@ -35,12 +35,15 @@ ResultType WalLogManager::LogTransaction(std::vector<LogRecord> log_records) {
 // Static method that accepts void pointer
 void WalLogManager::WriteTransactionWrapper(void* arg_ptr) {
 
-  // flush the log records to the disk
   LogTransactionArg* arg = (LogTransactionArg*)arg_ptr;
-  WriteTransaction(arg->log_records_);
 
   // replicate the log_records
   ReplayTransaction(arg->log_records_);
+
+  // flush the log records to the disk
+
+  WriteTransaction(arg->log_records_);
+
 
   delete (arg);
 }

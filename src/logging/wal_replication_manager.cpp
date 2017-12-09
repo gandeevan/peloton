@@ -29,7 +29,7 @@ namespace logging{
 // invoked by the primary server
 void WalReplicationManager::SendReplayTransactionRequest(std::vector<LogRecord> log_records){
     WalReplicatorClient *wrc = new WalReplicatorClient(grpc::CreateChannel(
-            "localhost:50051", grpc::InsecureChannelCredentials()));
+            "34.227.29.129:15410", grpc::InsecureChannelCredentials()));
 
     wrc->ReplayTransaction(log_records);
 
@@ -38,7 +38,7 @@ void WalReplicationManager::SendReplayTransactionRequest(std::vector<LogRecord> 
 
 // invoked by the secondary server
 void WalReplicationManager::AcceptReplayTransactionRequests(){
-    WalReplicatorServer *wrs = new WalReplicatorServer();
+    WalReplicatorServer *wrs = new WalReplicatorServer(15410);
     wrs->RunServer();
     delete wrs;
 }

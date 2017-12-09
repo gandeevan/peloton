@@ -14,6 +14,8 @@
 
 #pragma once
 
+#include "storage/tuple.h"
+#include "storage/data_table.h"
 #include "logging/log_buffer.h"
 #include "logging/log_record.h"
 #include "type/types.h"
@@ -32,6 +34,7 @@ namespace logging {
 
 class WalRecovery {
  public:
+
   WalRecovery(const size_t &logger_id, const std::string &log_dir)
       : logger_id_(logger_id), log_dir_(log_dir) {}
 
@@ -39,6 +42,8 @@ class WalRecovery {
 
   void StartRecovery();
   void WaitForRecovery();
+  bool ReplayLogFileOrReceivedBuffer(bool from_log_file, FileHandle &file_handle, char *received_buf, size_t len);
+
 
  private:
   // void Run();
@@ -54,11 +59,12 @@ class WalRecovery {
 
   bool ReplayLogFile(FileHandle &file_handle);
 
-  bool ReplayLogFileOrReceivedBuffer(bool from_log_file, FileHandle &file_handle, char *received_buf, size_t len);
 
   bool InstallTupleRecord(LogRecordType type, storage::Tuple *tuple,
                           storage::DataTable *table, cid_t cur_cid,
                           ItemPointer location);
+
+
 
   // Return value is the swapped txn id, either INVALID_TXNID or INITIAL_TXNID
   txn_id_t LockTuple(storage::TileGroupHeader *tg_header, oid_t tuple_offset);

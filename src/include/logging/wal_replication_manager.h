@@ -34,7 +34,7 @@ class WalReplicationManager{
     ~WalReplicationManager() {}
 
     void SendReplayTransactionRequest(std::vector<LogRecord> log_records);
-    void AcceptReplayTransactionRequests();
+    static void AcceptReplayTransactionRequests();
 };
 
 }

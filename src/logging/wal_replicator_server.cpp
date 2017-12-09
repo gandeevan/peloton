@@ -9,6 +9,7 @@
 #include <string>
 #include <grpc++/grpc++.h>
 
+#include "logging/wal_recovery.h"
 #include "logging/wal_replicator_server.h"
 #include "peloton/proto/wal_service.pb.h"
 #include "peloton/proto/wal_service.grpc.pb.h"
@@ -30,7 +31,23 @@ Status WalReplicatorService::ReplayTransaction(ServerContext* context,
   (void) request;
   (void) response;
 
-  return Status::CANCELLED;
+  WalRecovery wr(0, "/tmp/log");
+  FileHandle fh;
+
+  Status status_code;
+
+  char *buffer = new char [request->data().length()+1];
+  std::strcpy (buffer, request->data().c_str());
+
+  if(wr.ReplayLogFileOrReceivedBuffer(false, fh, buffer, request->len())){
+    status_code = Status::OK;
+  } else{
+    status_code = Status::CANCELLED;
+  }
+
+  delete[] buffer;
+  return status_code;
+
 }
 
 void WalReplicatorServer::RunServer() {
@@ -42,6 +59,7 @@ void WalReplicatorServer::RunServer() {
     builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
     builder.RegisterService(service);
     std::unique_ptr<Server> server(builder.BuildAndStart());
+
     server->Wait();
 }
 
