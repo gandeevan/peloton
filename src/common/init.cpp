@@ -83,6 +83,9 @@ void PelotonInit::Initialize() {
   //Change this to config-defined constant
   logging::WalLogManager::SetDirectory(settings::SettingsManager::GetString(settings::SettingId::log_directory));
   logging::WalLogManager::DoRecovery();
+
+  logging::WalSecondaryReplay replay_obj;
+  replay_obj.RunServer();
 }
 
 void PelotonInit::Shutdown() {

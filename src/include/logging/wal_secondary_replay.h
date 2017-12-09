@@ -33,6 +33,7 @@ namespace logging {
 
 class WalSecondaryReplay {
  public:
+  WalSecondaryReplay(){}
   WalSecondaryReplay(const size_t &logger_id, const std::string &log_dir)
       : logger_id_(logger_id), log_dir_(log_dir) {}
 
@@ -43,8 +44,12 @@ class WalSecondaryReplay {
   void ReplayDelete(LogRecord &log_record, oid_t database_id, oid_t table_id, oid_t tg_block, oid_t tg_offset);
   void ReplayUpdate(LogRecord &log_record, oid_t database_id, oid_t table_id, oid_t old_tg_block ,oid_t tg_block, old_tg_offset ,oid_t tg_offset);
 
+  void RunReplayThread();
+  void RunServer();
+
  private:
   // void Run();
+  std::thread *replay_thread_;
 
 };
 }

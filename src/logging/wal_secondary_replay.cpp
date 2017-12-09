@@ -41,9 +41,16 @@ namespace peloton {
 namespace logging {
 
 void WalSecondaryReplay::ReplayInsert(LogRecord &log_record, oid_t database_id, oid_t table_id, oid_t tg_block, oid_t tg_offset){
+  (void) log_record;
+  (void) database_id;
+  (void) table_id;
+  (void) tg_block;
+  (void) tg_offset;
+
+  /*
   cid_t current_cid = log_record.GetCommitId();
   cid_t current_eid = log_record.GetEpochId();
-
+  
   // Get item pointer , place where to insert the tuple
   ItemPointer location(tg_block, tg_offset);
   
@@ -82,10 +89,17 @@ void WalSecondaryReplay::ReplayInsert(LogRecord &log_record, oid_t database_id, 
     
     // Why is this line written?
     catalog::Manager::GetInstance().GetNextTileGroupId();
-  }
+  }*/
 }
 
 void WalSecondaryReplay::ReplayDelete(LogRecord &log_record, oid_t database_id, oid_t table_id, oid_t tg_block, oid_t tg_offset){
+  (void) log_record;
+  (void) database_id;
+  (void) table_id;
+  (void) tg_block;
+  (void) tg_offset;
+
+  /*
   cid_t current_cid = log_record.GetCommitId();
   cid_t current_eid = log_record.GetEpochId();
 
@@ -131,10 +145,18 @@ void WalSecondaryReplay::ReplayDelete(LogRecord &log_record, oid_t database_id, 
         nullptr)
       table->AddTileGroupWithOidForRecovery(tg->GetTileGroupId() + 1);
     catalog::Manager::GetInstance().GetNextTileGroupId();
-  }
+  }*/
 }
 
 void WalSecondaryReplay::ReplayUpdate(LogRecord &log_record, oid_t database_id, oid_t table_id, oid_t old_tg_block ,oid_t tg_block, old_tg_offset ,oid_t tg_offset){
+  
+  (void) log_record;
+  (void) database_id;
+  (void) table_id;
+  (void) tg_block;
+  (void) tg_offset;
+
+  /*
   cid_t current_cid = log_record.GetCommitId();
   cid_t current_eid = log_record.GetEpochId();
 
@@ -171,9 +193,28 @@ void WalSecondaryReplay::ReplayUpdate(LogRecord &log_record, oid_t database_id, 
         nullptr)
       table->AddTileGroupWithOidForRecovery(tg->GetTileGroupId() + 1);
     catalog::Manager::GetInstance().GetNextTileGroupId();
-  }
+  }*/
 
 }
+
+void WalSecondaryReplay::RunServer(){
+  std::cout<<" Runing server:  "<<std::endl;
+  /*
+  std::string server_address("0.0.0.0:15821");
+  RouteGuideImpl service();
+
+  ServerBuilder builder;
+  builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
+  builder.RegisterService(&service);
+  std::unique_ptr<Server> server(builder.BuildAndStart());
+  std::cout << "Server listening on " << server_address << std::endl;
+  server->Wait();*/
+}
+
+void WalSecondaryReplay::RunReplayThread(){
+  replay_thread_ = new std::thread(&WalSecondaryReplay::RunServer,this);
+}
+
 
 }
 }
