@@ -17,6 +17,7 @@
 #include <string>
 #include <grpc++/grpc++.h>
 
+#include "logging/wal_replicator_server.h"
 #include "logging/wal_replication_manager.h"
 #include "logging/wal_replicator_client.h"
 
@@ -25,7 +26,8 @@ using grpc::Channel;
 namespace peloton{
 namespace logging{
 
-void WalReplicationManager::ReplayTransaction(std::vector<LogRecord> log_records){
+// invoked by the primary server
+void WalReplicationManager::SendReplayTransactionRequest(std::vector<LogRecord> log_records){
     WalReplicatorClient *wrc = new WalReplicatorClient(grpc::CreateChannel(
             "localhost:50051", grpc::InsecureChannelCredentials()));
 
@@ -34,6 +36,12 @@ void WalReplicationManager::ReplayTransaction(std::vector<LogRecord> log_records
     delete wrc;
 }
 
+// invoked by the secondary server
+void WalReplicationManager::AcceptReplayTransactionRequests(){
+    WalReplicatorServer *wrs = new WalReplicatorServer();
+    wrs->RunServer();
+    delete wrs;
+}
 
 }
 }

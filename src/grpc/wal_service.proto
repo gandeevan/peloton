@@ -16,6 +16,6 @@ message LogReplayResponse{
 // SERVICE
 // -----------------------------------
 
-service WalReplicatorService {
-    rpc ReplayRecord (LogReplayRequest) returns (LogReplayResponse);
+service WalReplicator {
+    rpc ReplayTransaction (LogReplayRequest) returns (LogReplayResponse);
 }

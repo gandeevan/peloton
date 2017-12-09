@@ -22,15 +22,13 @@ namespace logging{
 class WalReplicatorClient{
   public:
     WalReplicatorClient(std::shared_ptr<Channel> channel)
-            : stub_(WalReplicatorService::NewStub(channel)) {}
+            : stub_(WalReplicator::NewStub(channel)) {}
 
     void ReplayTransaction(std::vector<LogRecord> log_records);
 
-  private:
-    Status ReplayRecord(LogRecord log_record);
 
   private:
-    std::unique_ptr<WalReplicatorService::Stub> stub_;
+    std::unique_ptr<WalReplicator::Stub> stub_;
 
 };
 
