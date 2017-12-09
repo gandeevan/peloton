@@ -12,10 +12,14 @@ add_library(peloton-proto STATIC ${proto_hdrs} ${proto_srcs} ${proto_python})
 set(Peloton_LINKER_LIBS peloton-proto ${Peloton_LINKER_LIBS}) # note, crucial to prepend!
 peloton_default_properties(peloton-proto)
 
+
 ##################################################################################
+
+# --[ gRPC library
 
 file(GLOB grpc_files grpc/*.proto)
 peloton_grpc_generate_cpp_py(${proto_gen_folder} grpc_srcs grpc_hdrs grpc_python ${grpc_files})
+
 
 # include python files either to force generation
 add_library(peloton-grpc STATIC ${grpc_hdrs} ${grpc_srcs} ${grpc_python})
@@ -40,7 +44,6 @@ add_custom_target(libpg_query ALL
 # creates 'srcs' lists
 peloton_pickup_peloton_sources(${PROJECT_SOURCE_DIR})
 add_library(peloton SHARED ${srcs})
-#add_library(peloton SHARED ${srcs} logging/wal_log_replicator.cpp)
 
 target_link_libraries(peloton ${Peloton_LINKER_LIBS} peloton-grpc peloton-proto ${PROJECT_SOURCE_DIR}/third_party/libpg_query/libpg_query.a)
 
@@ -54,7 +57,6 @@ set_target_properties(peloton PROPERTIES
 
 # --[ Peloton
 set(peloton_main ${PROJECT_SOURCE_DIR}/src/main/peloton/peloton.cpp)
-#set(peloton_main ${PROJECT_SOURCE_DIR}/src/main/peloton/peloton.cpp include/logging/wal_log_replicator.h)
 add_executable(peloton-bin ${peloton_main})
 target_link_libraries(peloton-bin peloton)
 set_target_properties(peloton-bin PROPERTIES OUTPUT_NAME peloton)

@@ -1,0 +1,21 @@
+
+
+package peloton.logging;
+
+
+message LogReplayRequest{
+    required int32 len = 1;
+    required bytes data = 2;
+}
+
+message LogReplayResponse{
+
+}
+
+// -----------------------------------
+// SERVICE
+// -----------------------------------
+
+service WalReplicatorService {
+    rpc ReplayRecord (LogReplayRequest) returns (LogReplayResponse);
+}

@@ -12,6 +12,7 @@
 
 #pragma once
 
+#include <atomic>
 #include "logging/log_buffer.h"
 #include "logging/log_record.h"
 #include "logging/wal_log_manager.h"
@@ -37,6 +38,8 @@ class WalLogger {
   void WriteTransaction(std::vector<LogRecord> log_records);
   void PersistLogBuffer(LogBuffer *log_buffer);
 
+  CopySerializeOutput *WriteRecordToBuffer(LogRecord &record);
+
  private:
   // void Run();
 
@@ -45,7 +48,7 @@ class WalLogger {
            std::to_string(logger_id_) + "_" + std::to_string(epoch_id);
   }
 
-  CopySerializeOutput *WriteRecordToBuffer(LogRecord &record);
+
 
  private:
   size_t logger_id_;

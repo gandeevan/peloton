@@ -12,7 +12,7 @@
 
 #pragma once
 
-#include <boost/asio.hpp>
+#include <vector>
 #include "logging/log_buffer.h"
 #include "logging/log_record.h"
 #include "type/serializeio.h"
@@ -20,27 +20,20 @@
 #include "common/logger.h"
 
 
-
 namespace peloton{
 namespace logging {
 
-class WalReplicator{
+class WalReplicationManager{
 
   private:
-
-
     // TODO : maintain a vector of endpoints
-    // vector<pair<string, string>> endpoints;
+
 
   public:
+    WalReplicationManager() {}
+    ~WalReplicationManager() {}
 
-    WalReplicator() {}
-    ~WalReplicator() {}
-
-    void ReplicateTransactionSync(std::vector<LogRecord> log_records);
-    void ReplicateTransactionAsync(std::vector<LogRecord> log_records);
-
-
+    void ReplayTransaction(std::vector<LogRecord> log_records);
 
 };
 

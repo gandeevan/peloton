@@ -17,7 +17,7 @@
 #include "threadpool/logger_queue_pool.h"
 #include "logging/wal_recovery.h"
 #include "logging/wal_logger.h"
-#include "logging/wal_log_replicator.h"
+#include "logging/wal_replication_manager.h"
 
 namespace peloton {
 namespace logging {
@@ -39,11 +39,10 @@ void WalLogManager::WriteTransactionWrapper(void* arg_ptr) {
   LogTransactionArg* arg = (LogTransactionArg*)arg_ptr;
   WriteTransaction(arg->log_records_);
 
+  // replicate the log_records
+  ReplayTransaction(arg->log_records_);
 
-  // send the log record the secondary servers
-  ReplicateTransaction(arg->log_records_);
   delete (arg);
-
 }
 
 // Actual method called by the logger thread
@@ -51,6 +50,12 @@ void WalLogManager::WriteTransaction(std::vector<LogRecord> log_records) {
   WalLogger* wl = new WalLogger(0, "/tmp/log");
   wl->WriteTransaction(log_records);
   delete wl;
+}
+
+void WalLogManager::ReplayTransaction(std::vector<LogRecord> log_records){
+  WalReplicationManager *wrm = new WalReplicationManager();
+  wrm->ReplayTransaction(log_records);
+  delete wrm;
 }
 
 void WalLogManager::SetDirectory(std::string logging_dir) {
@@ -72,13 +77,7 @@ void WalLogManager::DoRecovery() {
   delete wr;
 }
 
-void WalLogManager::ReplicateTransaction(std::vector<LogRecord> log_records){
 
-  WalReplicator *wr = new WalReplicator();
-  wr->ReplicateTransactionAsync(log_records);
-  delete wr;
-
-}
 
 }
 }

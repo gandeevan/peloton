@@ -64,8 +64,11 @@ class WalLogManager {
 
   static void WriteTransaction(std::vector<LogRecord> log_records);
 
+  static void ReplayTransaction(std::vector<LogRecord> log_records);
+
   // Logger side logic
   static void DoRecovery();
+
 
   ResultType LogTransaction(std::vector<LogRecord> log_records);
 

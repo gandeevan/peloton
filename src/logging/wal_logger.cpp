@@ -113,9 +113,9 @@ CopySerializeOutput *WalLogger::WriteRecordToBuffer(LogRecord &record) {
 
       output_buffer->WriteLong(old_tuple_pos.block);
       output_buffer->WriteLong(old_tuple_pos.offset);
-
       output_buffer->WriteLong(tuple_pos.block);
       output_buffer->WriteLong(tuple_pos.offset);
+
       // Write the full tuple into the buffer
       for (auto schema : tg->GetTileSchemas()) {
         for (auto column : schema.GetColumns()) {

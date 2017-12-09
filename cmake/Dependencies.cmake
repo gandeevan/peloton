@@ -18,6 +18,12 @@ list(APPEND Peloton_LINKER_LIBS ${GFLAGS_LIBRARIES})
 # ---[ Google-protobuf
 include(cmake/ProtoBuf.cmake)
 
+
+# ---[ Google-grpc
+include("cmake/External/gRPC.cmake")
+include_directories(SYSTEM ${GRPC_INCLUDE_DIRS})
+list(APPEND Peloton_LINKER_LIBS ${GRPC_LIBRARIES})
+
 # ---[ Libevent
 find_package(Libevent REQUIRED)
 include_directories(SYSTEM ${LIBEVENT_INCLUDE_DIRS})

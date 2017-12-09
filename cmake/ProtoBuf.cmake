@@ -127,19 +127,25 @@ function(peloton_grpc_generate_cpp_py output_dir srcs_var hdrs_var python_var)
   set(${srcs_var})
   set(${hdrs_var})
   set(${python_var})
+
   foreach(fil ${ARGN})
     get_filename_component(abs_fil ${fil} ABSOLUTE)
     get_filename_component(fil_we ${fil} NAME_WE)
 
+    list(APPEND ${srcs_var} "${output_dir}/${fil_we}.grpc.pb.cc")
     list(APPEND ${srcs_var} "${output_dir}/${fil_we}.pb.cc")
+
+    list(APPEND ${hdrs_var} "${output_dir}/${fil_we}.grpc.pb.h")
     list(APPEND ${hdrs_var} "${output_dir}/${fil_we}.pb.h")
+
     list(APPEND ${python_var} "${output_dir}/${fil_we}_pb2.py")
 
     add_custom_command(
             OUTPUT "${output_dir}/${fil_we}.grpc.pb.cc"
+            "${output_dir}/${fil_we}.grpc.pb.h"
             "${output_dir}/${fil_we}.pb.cc"
             "${output_dir}/${fil_we}.pb.h"
-            "${output_dir}/${fil_we}_pb2.py"
+            "${output_dir}/${fil_we}_grpc_pb2.py"
             COMMAND ${CMAKE_COMMAND} -E make_directory "${output_dir}"
             COMMAND ${PROTOBUF_PROTOC_EXECUTABLE} --grpc_out   ${output_dir} --plugin=protoc-gen-grpc=/usr/local/bin/grpc_cpp_plugin  ${_protoc_include} ${abs_fil}
             COMMAND ${PROTOBUF_PROTOC_EXECUTABLE} --cpp_out    ${output_dir} ${_protoc_include} ${abs_fil}
