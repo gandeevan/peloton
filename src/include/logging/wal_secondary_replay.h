@@ -29,14 +29,21 @@ namespace logging {
 
 class WalSecondaryReplay {
  public:
-  
+  WalLogManager() {
+  	wr = new WalRecovery(0, "/tmp/log");
+  }
+
+  ~WalLogManager() {
+  	delete wr;
+  }
+
   void RunReplayThread();
 
   static void ReplayTransactionWrapper(void *arg);
  
  private:
   std::thread *replay_thread_;
-  WalRecovery wr(0, "/tmp/log");
+  WalRecovery *wr;
 };
 
 struct ReplayTransactionArg {

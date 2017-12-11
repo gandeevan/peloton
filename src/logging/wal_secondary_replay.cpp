@@ -34,7 +34,7 @@ void WalSecondaryReplay::ReplayTransactionWrapper(void *arg){
 
 	ReplayTransactionArg *arg = (ReplayTransactionArg *) arg;
 
-	wr.ReplayLogFileOrReceivedBuffer(arg->from_log_file_, arg->file_handle_, arg->received_buf_, arg->len_);
+	wr->ReplayLogFileOrReceivedBuffer(arg->from_log_file_, arg->file_handle_, arg->received_buf_, arg->len_);
 
 	delete (arg);
 }
