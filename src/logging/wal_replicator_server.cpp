@@ -62,7 +62,9 @@ Status WalReplicatorService::ReplayTransaction(ServerContext* context,
 
     ReplayTransactionArg *arg = new ReplayTransactionArg(buffer_cpy, request->len());
     // TODO: add class
-    threadpool::ReplayQueuePool::GetInstance().SubmitTask(WalSecondaryReplay::ReplayTransactionWrapper,arg,task_callback_,task_callback_arg_);
+    //threadpool::ReplayQueuePool::GetInstance().SubmitTask(WalSecondaryReplay::ReplayTransactionWrapper,arg,task_callback_,task_callback_arg_);
+    std::thread t1(WalSecondaryReplay::ReplayTransactionWrapper,(void *)arg);
+    t1.detach();
     status_code = Status::OK;
   }
   else{
