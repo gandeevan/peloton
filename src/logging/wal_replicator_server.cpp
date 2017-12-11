@@ -43,13 +43,13 @@ Status WalReplicatorService::ReplayTransaction(ServerContext* context,
   std::cout<<"R ecaching here console"<<std::endl;
 
   char *buffer = (char *)request->data().c_str();
+
   if(wr.ReplayLogFileOrReceivedBuffer(false, fh, buffer, request->len())){
     status_code = Status::OK;
   } else{
     status_code = Status::CANCELLED;
   }
 
-  delete[] buffer;
   return status_code;
 
   return Status::OK;
