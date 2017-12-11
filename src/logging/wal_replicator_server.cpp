@@ -43,16 +43,25 @@ Status WalReplicatorService::ReplayTransaction(ServerContext* context,
   // char *buffer = new char [request->data().length()+1];
   // std::strcpy (buffer, request->data().c_str());
   std::cout<<"R ecaching here console"<<std::endl;
+  bool is_async_ = true;
+  char *buffer = (char *)request->data().c_str();;
 
-  char *buffer = (char *)request->data().c_str();
+  if (is_async_){
 
-  if (true){
-
-    // callback args
+    // make callback arguments
     void (*task_callback_)(void *) = nullptr;
     void *task_callback_arg_ = nullptr;
 
-    ReplayTransactionArg *arg = new ReplayTransactionArg(false, fh, buffer, request->len());
+    char *buffer_cpy = (char *)malloc(sizeof(char) * request->len());
+    if (buffer_cpy == nullptr){
+      LOG_ERROR("Can not allocate memory !!");
+      exit(EXIT_FAILURE);
+    }
+
+    // copy data into buffer
+    memcpy(buffer_cpy,buffer,request->len());
+
+    ReplayTransactionArg *arg = new ReplayTransactionArg(false, fh, buffer_cpy, request->len());
     // TODO: add class
     std::cout<<"Before making aysnc call"<<std::endl;
     threadpool::ReplayQueuePool::GetInstance().SubmitTask(WalSecondaryReplay::ReplayTransactionWrapper,arg,task_callback_,task_callback_arg_);
@@ -63,7 +72,6 @@ Status WalReplicatorService::ReplayTransaction(ServerContext* context,
       status_code = Status::OK;
     }
   }
-  //delete[] buffer;
   return status_code;
 
   return Status::OK;
