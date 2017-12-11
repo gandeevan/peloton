@@ -52,9 +52,9 @@ class ReplayQueuePool {
     task_queue_.Enqueue(task_ptr, task_arg, callback_ptr, callback_arg);
   }
 
-  static LoggerQueuePool &GetInstance() {
-    static LoggerQueuePool logger_queue_pool;
-    return logger_queue_pool;
+  static ReplayQueuePool &GetInstance() {
+    static ReplayQueuePool replay_queue_pool;
+    return replay_queue_pool;
   }
 
  private:

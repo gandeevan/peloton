@@ -30,11 +30,11 @@ void WalSecondaryReplay::RunReplayThread(){
   replay_thread_ = new std::thread(WalReplicationManager::AcceptReplayTransactionRequests);
 }
 
-void WalSecondaryReplay::ReplayTransactionWrapper(void *arg){
+void WalSecondaryReplay::ReplayTransactionWrapper(void *arg_ptr){
+	WalRecovery wr(0, "/tmp/log");
+	ReplayTransactionArg *arg = (ReplayTransactionArg *) arg_ptr;
 
-	ReplayTransactionArg *arg = (ReplayTransactionArg *) arg;
-
-	wr->ReplayLogFileOrReceivedBuffer(arg->from_log_file_, arg->file_handle_, arg->received_buf_, arg->len_);
+	wr.ReplayLogFileOrReceivedBuffer(arg->from_log_file_, arg->file_handle_, arg->received_buf_, arg->len_);
 
 	delete (arg);
 }

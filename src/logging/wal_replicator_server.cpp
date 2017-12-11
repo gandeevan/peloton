@@ -13,7 +13,7 @@
 #include "logging/wal_replicator_server.h"
 #include "peloton/proto/wal_service.pb.h"
 #include "peloton/proto/wal_service.grpc.pb.h"
-#include "threadpool/logger_queue_pool.h"
+#include "threadpool/replay_queue_pool.h"
 #include "logging/wal_secondary_replay.h"
 
 using grpc::Server;
@@ -49,8 +49,8 @@ Status WalReplicatorService::ReplayTransaction(ServerContext* context,
   if (true){
 
     // callback args
-    void (*task_callback_)(void *);
-    void *task_callback_arg_;
+    void (*task_callback_)(void *) = nullptr;
+    void *task_callback_arg_ = nullptr;
 
     ReplayTransactionArg *arg = new ReplayTransactionArg(false, fh, buffer, request->len());
     // TODO: add class
@@ -60,8 +60,8 @@ Status WalReplicatorService::ReplayTransaction(ServerContext* context,
   else{
     if(wr.ReplayLogFileOrReceivedBuffer(false, fh, buffer, request->len())){
       status_code = Status::OK;
+    }
   }
-
   delete[] buffer;
   return status_code;
 
