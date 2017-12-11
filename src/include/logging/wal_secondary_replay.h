@@ -29,11 +29,11 @@ namespace logging {
 
 class WalSecondaryReplay {
  public:
-  WalLogManager() {
+  WalSecondaryReplay() {
   	wr = new WalRecovery(0, "/tmp/log");
   }
 
-  ~WalLogManager() {
+  ~WalSecondaryReplay() {
   	delete wr;
   }
 
