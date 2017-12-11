@@ -301,6 +301,9 @@ bool WalRecovery::ReplayLogFileOrReceivedBuffer(bool from_log_file, FileHandle &
                   if (from_log_file) {
                     LoggingUtil::ReadNBytesFromFile(file_handle, (void *)&length_buf, 4);
                   } else {
+		    if (buf_offset >= len){
+			break;
+		    }
                     std::cout<<" before 3rd memcpy , buf_offset "<<buf_offset<<std::endl;
                     memcpy(length_buf, received_buf + buf_offset, 4);
                     buf_offset += 4;
@@ -317,9 +320,11 @@ bool WalRecovery::ReplayLogFileOrReceivedBuffer(bool from_log_file, FileHandle &
                   if (from_log_file) {
                     LoggingUtil::ReadNBytesFromFile(file_handle, (void *)buffer.get(), length);
                   } else {
-                    std::cout<<" before 4th memcpy , buf_offset "<<buf_offset<<std::endl;
-                    memcpy(buffer.get(), received_buf + buf_offset, length);
-                    buf_offset += length;
+                    
+		    std::cout<<" before 4th memcpy , buf_offset "<<buf_offset<<" length: "<<length<<std::endl;
+		    memcpy(buffer.get(), received_buf + buf_offset, length);
+                    std::cout<<" memcpy successful "<<std::endl; 
+		    buf_offset += length;
                     std::cout<<" 4th memcpy ran , buf_offset "<<buf_offset<<std::endl;
                   }
                   CopySerializeInput record_decode((const void *)buffer.get(), length);

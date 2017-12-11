@@ -40,7 +40,7 @@ Status WalReplicatorService::ReplayTransaction(ServerContext* context,
   
   int request_length = *((int *)request->data().c_str());
 
-  std::cout<<" recv len: "<<request_length<<" "<<std::endl;
+  std::cout<<" recv len: "<<request_length<<" len in para: "<<request->len()<<std::endl;
 
   bool is_async_ = true;
   char *buffer = (char *)request->data().c_str();;
@@ -51,14 +51,14 @@ Status WalReplicatorService::ReplayTransaction(ServerContext* context,
     void (*task_callback_)(void *) = nullptr;
     void *task_callback_arg_ = nullptr;
 
-    char *buffer_cpy = (char *)malloc(sizeof(char) * request_length);
+    char *buffer_cpy = (char *)malloc(sizeof(char) * (request->len()));
     if (buffer_cpy == nullptr){
       LOG_ERROR("Can not allocate memory !!");
       exit(EXIT_FAILURE);
     }
 
     // copy data into buffer
-    memcpy(buffer_cpy,buffer,request_length);
+    memcpy(buffer_cpy,buffer,(request->len()));
 
     ReplayTransactionArg *arg = new ReplayTransactionArg(buffer_cpy, request->len());
     // TODO: add class
