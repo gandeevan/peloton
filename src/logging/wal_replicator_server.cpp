@@ -9,10 +9,12 @@
 #include <string>
 #include <grpc++/grpc++.h>
 
-#include "logging/wal_recovery.h"
+//#include "logging/wal_recovery.h"
 #include "logging/wal_replicator_server.h"
 #include "peloton/proto/wal_service.pb.h"
 #include "peloton/proto/wal_service.grpc.pb.h"
+#include "threadpool/logger_queue_pool.h"
+#include "logging/wal_secondary_replay.h"
 
 using grpc::Server;
 using grpc::ServerBuilder;
@@ -35,7 +37,7 @@ Status WalReplicatorService::ReplayTransaction(ServerContext* context,
   WalRecovery wr(0, "/tmp/log");
   FileHandle fh;
 
-  Status status_code;
+  Status status_code = Status::CANCELLED;
   
   std::cout<<" recv len: "<<*((int *)request->data().c_str())<<" "<<std::endl;
   // char *buffer = new char [request->data().length()+1];
@@ -43,10 +45,21 @@ Status WalReplicatorService::ReplayTransaction(ServerContext* context,
   std::cout<<"R ecaching here console"<<std::endl;
 
   char *buffer = (char *)request->data().c_str();
-  if(wr.ReplayLogFileOrReceivedBuffer(false, fh, buffer, request->len())){
+
+  if (true){
+
+    // callback args
+    void (*task_callback_)(void *);
+    void *task_callback_arg_;
+
+    ReplayTransactionArg *arg = new ReplayTransactionArg(false, fh, buffer, request->len());
+    // TODO: add class
+    threadpool::ReplayQueuePool::GetInstance().SubmitTask(WalSecondaryReplay::ReplayTransactionWrapper,arg,task_callback_,task_callback_arg_);
     status_code = Status::OK;
-  } else{
-    status_code = Status::CANCELLED;
+  }
+  else{
+    if(wr.ReplayLogFileOrReceivedBuffer(false, fh, buffer, request->len())){
+      status_code = Status::OK;
   }
 
   delete[] buffer;
