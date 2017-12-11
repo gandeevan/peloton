@@ -54,6 +54,7 @@ Status WalReplicatorService::ReplayTransaction(ServerContext* context,
 
     ReplayTransactionArg *arg = new ReplayTransactionArg(false, fh, buffer, request->len());
     // TODO: add class
+    std::cout<<"Before making aysnc call"<<std::endl;
     threadpool::ReplayQueuePool::GetInstance().SubmitTask(WalSecondaryReplay::ReplayTransactionWrapper,arg,task_callback_,task_callback_arg_);
     status_code = Status::OK;
   }
@@ -62,7 +63,7 @@ Status WalReplicatorService::ReplayTransaction(ServerContext* context,
       status_code = Status::OK;
     }
   }
-  delete[] buffer;
+  //delete[] buffer;
   return status_code;
 
   return Status::OK;

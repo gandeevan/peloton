@@ -33,10 +33,13 @@ void WalSecondaryReplay::RunReplayThread(){
 void WalSecondaryReplay::ReplayTransactionWrapper(void *arg_ptr){
 	WalRecovery wr(0, "/tmp/log");
 	ReplayTransactionArg *arg = (ReplayTransactionArg *) arg_ptr;
-
+	
+	std::cout<<"replaying the incoming request"<<std::endl;
 	wr.ReplayLogFileOrReceivedBuffer(arg->from_log_file_, arg->file_handle_, arg->received_buf_, arg->len_);
-
+	std::cout<<"replayed the request"<<std::endl;
+	
 	delete (arg);
+	std::cout<<"deleted the pointer"<<std::endl;
 }
 
 }

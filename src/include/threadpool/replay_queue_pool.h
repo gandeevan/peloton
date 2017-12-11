@@ -28,7 +28,7 @@ namespace threadpool {
 class ReplayQueuePool {
  public:
   ReplayQueuePool() : task_queue_(DEFAULT_TASK_QUEUE_SIZE),
-                    logger_pool_(DEFAULT_LOGGER_POOL_SIZE, &task_queue_),
+                    replay_pool_(DEFAULT_LOGGER_POOL_SIZE, &task_queue_),
                     startup_(false) {}
   ~ReplayQueuePool() {
     if (startup_ == true)
@@ -36,12 +36,12 @@ class ReplayQueuePool {
   }
 
   void Startup() {
-    logger_pool_.Startup();
+    replay_pool_.Startup();
     startup_ = true;
   }
 
   void Shutdown() {
-    logger_pool_.Shutdown();
+    replay_pool_.Shutdown();
     startup_ = false;
   }
 
@@ -49,7 +49,9 @@ class ReplayQueuePool {
                   void (*callback_ptr)(void *), void *callback_arg) {
     if (startup_ == false)
       Startup();
+    std::cout<<"before task enqueue"<<std::endl;
     task_queue_.Enqueue(task_ptr, task_arg, callback_ptr, callback_arg);
+    std::cout<<"after task enqueue"<<std::endl;
   }
 
   static ReplayQueuePool &GetInstance() {
@@ -59,7 +61,7 @@ class ReplayQueuePool {
 
  private:
   TaskQueue task_queue_;
-  WorkerPool logger_pool_;
+  WorkerPool replay_pool_;
   bool startup_;
 };
 
