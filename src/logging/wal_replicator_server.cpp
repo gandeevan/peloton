@@ -32,17 +32,16 @@ Status WalReplicatorService::ReplayTransaction(ServerContext* context,
   (void) context;
   (void) request;
   (void) response;
-  LOG_DEBUG("rEaching here !!");
 
   WalRecovery wr(0, "/tmp/log");
   FileHandle fh;
 
   Status status_code = Status::CANCELLED;
   
-  std::cout<<" recv len: "<<*((int *)request->data().c_str())<<" "<<std::endl;
-  // char *buffer = new char [request->data().length()+1];
-  // std::strcpy (buffer, request->data().c_str());
-  std::cout<<"R ecaching here console"<<std::endl;
+  int request_length = *((int *)request->data().c_str());
+
+  std::cout<<" recv len: "<<request_length<<" "<<std::endl;
+
   bool is_async_ = true;
   char *buffer = (char *)request->data().c_str();;
 
@@ -52,18 +51,17 @@ Status WalReplicatorService::ReplayTransaction(ServerContext* context,
     void (*task_callback_)(void *) = nullptr;
     void *task_callback_arg_ = nullptr;
 
-    char *buffer_cpy = (char *)malloc(sizeof(char) * request->len());
+    char *buffer_cpy = (char *)malloc(sizeof(char) * request_length);
     if (buffer_cpy == nullptr){
       LOG_ERROR("Can not allocate memory !!");
       exit(EXIT_FAILURE);
     }
 
     // copy data into buffer
-    memcpy(buffer_cpy,buffer,request->len());
+    memcpy(buffer_cpy,buffer,request_length);
 
-    ReplayTransactionArg *arg = new ReplayTransactionArg(false, fh, buffer_cpy, request->len());
+    ReplayTransactionArg *arg = new ReplayTransactionArg(buffer_cpy, request->len());
     // TODO: add class
-    std::cout<<"Before making aysnc call"<<std::endl;
     threadpool::ReplayQueuePool::GetInstance().SubmitTask(WalSecondaryReplay::ReplayTransactionWrapper,arg,task_callback_,task_callback_arg_);
     status_code = Status::OK;
   }
@@ -73,8 +71,6 @@ Status WalReplicatorService::ReplayTransaction(ServerContext* context,
     }
   }
   return status_code;
-
-  return Status::OK;
 }
 
 void WalReplicatorServer::RunServer() {

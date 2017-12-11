@@ -47,11 +47,9 @@ class WalSecondaryReplay {
 };
 
 struct ReplayTransactionArg {
-  inline ReplayTransactionArg(bool from_log_file, FileHandle &file_handle, char *received_buf, size_t len)
-      : from_log_file_(from_log_file),file_handle_(file_handle),received_buf_(received_buf),len_(len) {}
-
-  bool from_log_file_;
-  FileHandle &file_handle_;
+  inline ReplayTransactionArg(char *received_buf, size_t len)
+      : received_buf_(received_buf),len_(len) {}
+ 
   char *received_buf_;
   size_t len_;
 };
