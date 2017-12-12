@@ -18,6 +18,7 @@
 #include "logging/wal_recovery.h"
 #include "logging/wal_logger.h"
 #include "logging/wal_replication_manager.h"
+#include "settings/settings_manager.h"
 
 namespace peloton {
 namespace logging {
@@ -38,7 +39,10 @@ void WalLogManager::WriteTransactionWrapper(void* arg_ptr) {
   LogTransactionArg* arg = (LogTransactionArg*)arg_ptr;
 
   // replicate the log_records
-  // ReplayTransaction(arg->log_records_);
+  bool is_primary = peloton::settings::SettingsManager::GetBool(peloton::settings::SettingId::role);
+  if (is_primary){
+    ReplayTransaction(arg->log_records_);
+  }
 
   // flush the log records to the disk
 
