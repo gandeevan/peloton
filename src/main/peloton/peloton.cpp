@@ -21,6 +21,7 @@
 
 DECLARE_bool(help);
 DEFINE_int32(rep_m,1,"replication_mode for WAL replication");
+DEFINE_bool(is_primary,true,"node role");
 
 // Peloton process begins execution here.
 int main(int argc, char *argv[]) {
@@ -42,10 +43,13 @@ int main(int argc, char *argv[]) {
     auto &settings = peloton::settings::SettingsManager::GetInstance();
     settings.ShowInfo();
   }
-  std::cout<<"Replication Mode: "<<FLAGS_rep_m<<std::endl;
 
+  // set replication mode settings
   peloton::settings::SettingsManager::SetInt(peloton::settings::SettingId::replication_mode,FLAGS_rep_m);
 
+  // set node role
+  peloton::settings::SettingsManager::SetBool(peloton::settings::SettingId::role,FLAGS_is_primary);
+  
   try {
     // Setup
     peloton::PelotonInit::Initialize();

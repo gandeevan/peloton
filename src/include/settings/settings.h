@@ -127,7 +127,7 @@ SETTING_bool(h,
             false, false)
 
 //===----------------------------------------------------------------------===//
-// GENERAL
+// WAL REPLICATION MODE
 //===----------------------------------------------------------------------===//
 
 // Replication mode
@@ -136,3 +136,12 @@ SETTING_int(replication_mode,
             1,
             false, false)
 
+//===----------------------------------------------------------------------===//
+// PELOTON NODE role
+//===----------------------------------------------------------------------===//
+
+// current node role
+SETTING_bool(role,
+            "Node role. True - Primary, False - Secondary. (default: true)",
+            true,
+            false, false)

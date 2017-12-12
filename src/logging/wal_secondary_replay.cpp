@@ -38,7 +38,6 @@ void WalSecondaryReplay::ReplayTransactionWrapper(void *arg_ptr){
 	ReplayTransactionArg *arg = (ReplayTransactionArg *) arg_ptr;
 	
 	wr.ReplayLogFileOrReceivedBuffer(false,fh, arg->received_buf_, arg->len_);
-	std::cout<<"replayed the request"<<std::endl;
 	
 	// first delete the allocated buffer
 	delete arg->received_buf_;

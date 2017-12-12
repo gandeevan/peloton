@@ -38,37 +38,35 @@ Status WalReplicatorService::ReplayTransaction(ServerContext* context,
 
   Status status_code = Status::CANCELLED;
   
-  int request_length = *((int *)request->data().c_str());
+  int request_length = request->len();
 
-  std::cout<<" recv len: "<<request_length<<" len in para: "<<request->len()<<std::endl;
-
-  bool is_async_ = true;
+  int32_t rep_mode_ = peloton::settings::SettingsManager::GetInt(peloton::settings::SettingId::replication_mode);
   char *buffer = (char *)request->data().c_str();;
 
-  if (is_async_){
+  if (rep_mode_ == 2){
 
     // make callback arguments
-    void (*task_callback_)(void *) = nullptr;
-    void *task_callback_arg_ = nullptr;
+    //void (*task_callback_)(void *) = nullptr;
+    //void *task_callback_arg_ = nullptr;
 
-    char *buffer_cpy = (char *)malloc(sizeof(char) * (request->len()));
+    char *buffer_cpy = (char *)malloc(sizeof(char) * request_length);
     if (buffer_cpy == nullptr){
       LOG_ERROR("Can not allocate memory !!");
       exit(EXIT_FAILURE);
     }
 
     // copy data into buffer
-    memcpy(buffer_cpy,buffer,(request->len()));
+    memcpy(buffer_cpy,buffer,request_length);
 
-    ReplayTransactionArg *arg = new ReplayTransactionArg(buffer_cpy, request->len());
+    ReplayTransactionArg *arg = new ReplayTransactionArg(buffer_cpy, request_length);
     // TODO: add class
     //threadpool::ReplayQueuePool::GetInstance().SubmitTask(WalSecondaryReplay::ReplayTransactionWrapper,arg,task_callback_,task_callback_arg_);
     std::thread t1(WalSecondaryReplay::ReplayTransactionWrapper,(void *)arg);
     t1.detach();
     status_code = Status::OK;
   }
-  else{
-    if(wr.ReplayLogFileOrReceivedBuffer(false, fh, buffer, request->len())){
+  else if (rep_mode_ ==  1){
+    if( wr.ReplayLogFileOrReceivedBuffer(false, fh, buffer, request_length) ) {
       status_code = Status::OK;
     }
   }
