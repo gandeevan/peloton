@@ -20,6 +20,7 @@
 #include "settings/settings_manager.h"
 
 DECLARE_bool(help);
+DEFINE_int(replication_mode,1,"replication_mode for WAL replication");
 
 // Peloton process begins execution here.
 int main(int argc, char *argv[]) {
@@ -41,6 +42,11 @@ int main(int argc, char *argv[]) {
     auto &settings = peloton::settings::SettingsManager::GetInstance();
     settings.ShowInfo();
   }
+  std::cout<<"Replication Mode: "<<FLAGS_replication_mode<<std::endl;
+
+  peloton::settings::SettingsManager::SetInt(settings::SettingId::replication_mode,FLAGS_replication_mode);
+
+  peloton::settings::SettingsManager::  
 
   try {
     // Setup

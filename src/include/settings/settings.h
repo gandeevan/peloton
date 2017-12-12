@@ -126,4 +126,13 @@ SETTING_bool(h,
             false,
             false, false)
 
+//===----------------------------------------------------------------------===//
+// GENERAL
+//===----------------------------------------------------------------------===//
+
+// Replication mode
+SETTING_int(replication_mode,
+            "Replication mode. 1 - Synchronous, 2 - Asynchronous, 3 - Semi-synch (default: 1)",
+            1,
+            false, false)
 
