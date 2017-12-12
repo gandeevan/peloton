@@ -15,6 +15,7 @@
 #include "peloton/proto/wal_service.grpc.pb.h"
 #include "threadpool/replay_queue_pool.h"
 #include "logging/wal_secondary_replay.h"
+#include "settings/settings_manager.h"
 
 using grpc::Server;
 using grpc::ServerBuilder;
