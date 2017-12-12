@@ -181,8 +181,6 @@ bool WalRecovery::ReplayLogFile(FileHandle &file_handle) {
 
 bool WalRecovery::ReplayLogFileOrReceivedBuffer(bool from_log_file, FileHandle &file_handle, char *received_buf, size_t len) {
   // Status
-  LOG_DEBUG("ReplayLogFileOrReceivedBuffer");
-  std::cout<<" Reaching main end file: "<<std::endl;
   cid_t current_cid = INVALID_CID;
   cid_t current_eid = INVALID_EID;
   std::unique_ptr<type::AbstractPool> pool(new type::EphemeralPool());
@@ -203,14 +201,11 @@ bool WalRecovery::ReplayLogFileOrReceivedBuffer(bool from_log_file, FileHandle &
       }
     } else {
       if (buf_offset >= len) {
-      std::cout<<" before 1st memcpy , buf_offset len "<<buf_offset<< " " << len << std::endl;
         LOG_TRACE("Reach the end of the received buffer");
         break;
       }
-      std::cout << "The value of length is " << *((int*)received_buf) << std::endl;
       memcpy(length_buf, received_buf + buf_offset, 4);
       buf_offset += 4;
-      std::cout<<" 1ST memcpy ran , buf_offset "<<buf_offset<<std::endl;
     }
     CopySerializeInput length_decode((const void *)&length_buf, 4);
     int length = length_decode.ReadInt();
@@ -229,10 +224,8 @@ bool WalRecovery::ReplayLogFileOrReceivedBuffer(bool from_log_file, FileHandle &
         return false;
       }
     } else {
-      std::cout<<" before 2nd memcpy , buf_offset "<<buf_offset<<std::endl;
       memcpy(buffer.get(), received_buf + buf_offset, length);
       buf_offset += length;
-      std::cout<<" 2nd memcpy ran , buf_offset "<<buf_offset<<std::endl;
     }
     CopySerializeInput record_decode((const void *)buffer.get(), length);
 
@@ -244,23 +237,17 @@ bool WalRecovery::ReplayLogFileOrReceivedBuffer(bool from_log_file, FileHandle &
         (LogRecordType)(record_decode.ReadEnumInSingleByte());
     switch (record_type) {
       case LogRecordType::TUPLE_INSERT: {
-        std::cout<<" before 3rd memcpy , buf_offset "<<buf_offset<< __LINE__ << std::endl;
         eid_t record_eid = record_decode.ReadLong();
         if (record_eid > current_eid) {
           current_eid = record_eid;
         }
         current_cid = record_decode.ReadLong();
-        std::cout<<" before 3rd memcpy , buf_offset "<<buf_offset<< __LINE__ << std::endl;
 
         oid_t database_id = (oid_t)record_decode.ReadLong();
-        std::cout<<" before 3rd memcpy , buf_offset "<<buf_offset<< __LINE__ << std::endl;
         oid_t table_id = (oid_t)record_decode.ReadLong();
-        std::cout<<" before 3rd memcpy , buf_offset "<<buf_offset<< __LINE__ << std::endl;
 
         oid_t tg_block = (oid_t)record_decode.ReadLong();
-        std::cout<<" before 3rd memcpy , buf_offset "<<buf_offset<< __LINE__ << std::endl;
         oid_t tg_offset = (oid_t)record_decode.ReadLong();
-        std::cout<<" before 3rd memcpy , buf_offset "<<buf_offset<< " " <<  __LINE__ << std::endl;
 
         ItemPointer location(tg_block, tg_offset);
         auto table = storage::StorageManager::GetInstance()->GetTableWithOid(
@@ -282,18 +269,14 @@ bool WalRecovery::ReplayLogFileOrReceivedBuffer(bool from_log_file, FileHandle &
         }
         // When inserts happen in catalog tables, there must be a corresponding
         // data structure
-        std::cout<<" before 3rd memcpy , buf_offset "<<buf_offset<< __LINE__ << std::endl;
         if (database_id == CATALOG_DATABASE_OID) {  // catalog database oid
           // Catalog is already created, we must do this transactionally
-        std::cout<<" before 3rd memcpy , buf_offset "<<buf_offset<< __LINE__ << std::endl;
           InstallTupleRecord(record_type, tuple.get(), table, current_cid,
                              location);
-        std::cout<<" before 3rd memcpy , buf_offset "<<buf_offset<< __LINE__ << std::endl;
           switch (table_id) {
             case TABLE_CATALOG_OID:  // pg_table
             {
               
-              std::cout<<" before 3rd memcpy , buf_offset "<<buf_offset<< __LINE__ << std::endl;
               bool is_column = true;
               auto offset = from_log_file ? ftell(file_handle.file) : buf_offset;
               while(is_column){
@@ -301,13 +284,11 @@ bool WalRecovery::ReplayLogFileOrReceivedBuffer(bool from_log_file, FileHandle &
                   if (from_log_file) {
                     LoggingUtil::ReadNBytesFromFile(file_handle, (void *)&length_buf, 4);
                   } else {
-		    if (buf_offset >= len){
-			break;
-		    }
-                    std::cout<<" before 3rd memcpy , buf_offset "<<buf_offset<<std::endl;
-                    memcpy(length_buf, received_buf + buf_offset, 4);
-                    buf_offset += 4;
-                    std::cout<<" 3rd memcpy ran , buf_offset "<<buf_offset<<std::endl;
+		                  if (buf_offset >= len){
+			                  break;
+		                  }
+                      memcpy(length_buf, received_buf + buf_offset, 4);
+                      buf_offset += 4;
                   }
                   CopySerializeInput length_decode((const void *)&length_buf, 4);
                   int length = length_decode.ReadInt();
@@ -321,11 +302,8 @@ bool WalRecovery::ReplayLogFileOrReceivedBuffer(bool from_log_file, FileHandle &
                     LoggingUtil::ReadNBytesFromFile(file_handle, (void *)buffer.get(), length);
                   } else {
                     
-		    std::cout<<" before 4th memcpy , buf_offset "<<buf_offset<<" length: "<<length<<std::endl;
-		    memcpy(buffer.get(), received_buf + buf_offset, length);
-                    std::cout<<" memcpy successful "<<std::endl; 
-		    buf_offset += length;
-                    std::cout<<" 4th memcpy ran , buf_offset "<<buf_offset<<std::endl;
+		                memcpy(buffer.get(), received_buf + buf_offset, length);
+		                buf_offset += length;
                   }
                   CopySerializeInput record_decode((const void *)buffer.get(), length);
                   record_decode.ReadEnumInSingleByte(); //Record type
@@ -391,7 +369,6 @@ bool WalRecovery::ReplayLogFileOrReceivedBuffer(bool from_log_file, FileHandle &
                 fseek(file_handle.file,offset,SEEK_SET);
               } else {
                 
-                std::cout<<" before 3rd memcpy CHanging "<<buf_offset<< " to " << offset << __LINE__ << std::endl;
                 buf_offset = offset;
               }
               break;
@@ -399,12 +376,10 @@ bool WalRecovery::ReplayLogFileOrReceivedBuffer(bool from_log_file, FileHandle &
             case COLUMN_CATALOG_OID:  // pg_attribute
             {
 
-              std::cout<<" before 3rd memcpy , buf_offset "<<buf_offset<< " " <<__LINE__ << std::endl;
               catalog::ColumnCatalog::GetInstance()->GetNextOid();
               break;
             }
             case INDEX_CATALOG_OID: {
-              std::cout<<" before 3rd memcpy , buf_offset "<<buf_offset<< " " <<__LINE__ << std::endl;
               LOG_DEBUG("\n\n\nPG_INDEX\n\n\n");
               indexes.push_back(std::move(tuple));
               catalog::IndexCatalog::GetInstance()->GetNextOid();
@@ -412,7 +387,6 @@ bool WalRecovery::ReplayLogFileOrReceivedBuffer(bool from_log_file, FileHandle &
           }
         } else {
           // Simply insert the tuple in the tilegroup directly
-              std::cout<<" before 3rd memcpy , buf_offset "<<buf_offset<< " " <<__LINE__ << std::endl;
           auto tuple_id =
               tg->InsertTupleFromRecovery(current_cid, tg_offset, tuple.get());
           table->IncreaseTupleCount(1);
@@ -422,12 +396,10 @@ bool WalRecovery::ReplayLogFileOrReceivedBuffer(bool from_log_file, FileHandle &
               table->AddTileGroupWithOidForRecovery(tg->GetTileGroupId() + 1);
             catalog::Manager::GetInstance().GetNextTileGroupId();
           }
-              std::cout<<" before 3rd memcpy , buf_offset "<<buf_offset<< " " <<__LINE__ << std::endl;
         }
         break;
       }
       case LogRecordType::TUPLE_DELETE: {
-              std::cout<<" before 3rd memcpy , buf_offset "<<buf_offset<< " " <<__LINE__ << std::endl;
         eid_t record_eid = record_decode.ReadLong();
         if (record_eid > current_eid) {
           current_eid = record_eid;
@@ -582,13 +554,10 @@ bool WalRecovery::ReplayLogFileOrReceivedBuffer(bool from_log_file, FileHandle &
       }
     }
   }
-              std::cout<<" before 3rd memcpy , buf_offset "<<buf_offset<< " " <<__LINE__ << std::endl;
   std::set<storage::DataTable *> tables_with_indexes;
 
   // Index construction that was deferred from the read records phase
-              std::cout<<" before 3rd memcpy , buf_offset "<<buf_offset<< " " <<__LINE__ << std::endl;
   for (auto const &tup : indexes) {
-              std::cout<<" before 3rd memcpy , buf_offset "<<buf_offset<< " " <<__LINE__ << std::endl;
     std::vector<oid_t> key_attrs;
     oid_t key_attr;
     auto txn =
@@ -619,13 +588,11 @@ bool WalRecovery::ReplayLogFileOrReceivedBuffer(bool from_log_file, FileHandle &
     table->AddIndex(index);
     tables_with_indexes.insert(table);
     // Attributes must be changed once we have arraytype
-              std::cout<<" before 3rd memcpy , buf_offset "<<buf_offset<< " " <<__LINE__ << std::endl;
   }
 
   // add tuples to index
 
   for (storage::DataTable *table : tables_with_indexes) {
-              std::cout<<" before 3rd memcpy , buf_offset "<<buf_offset<< " " <<__LINE__ << std::endl;
     auto schema = table->GetSchema();
     size_t tg_count = table->GetTileGroupCount();
     for (oid_t tg = 0; tg < tg_count; tg++) {
@@ -633,7 +600,6 @@ bool WalRecovery::ReplayLogFileOrReceivedBuffer(bool from_log_file, FileHandle &
 
       for (int tuple_slot_id = START_OID; tuple_slot_id < DEFAULT_TUPLES_PER_TILEGROUP;
            tuple_slot_id++) {
-              std::cout<<" before 3rd memcpy , buf_offset "<<buf_offset<< " " <<__LINE__ << std::endl;
         txn_id_t tuple_txn_id = tile_group->GetHeader()->GetTransactionId(tuple_slot_id);
         if (tuple_txn_id != INVALID_TXN_ID) {
           PL_ASSERT(tuple_txn_id == INITIAL_TXN_ID);
@@ -651,12 +617,10 @@ bool WalRecovery::ReplayLogFileOrReceivedBuffer(bool from_log_file, FileHandle &
               txn);
 
         }
-              std::cout<<" before 3rd memcpy , buf_offset "<<buf_offset<< " " <<__LINE__ << std::endl;
       }
 
 
     }
-              std::cout<<" before 3rd memcpy , buf_offset "<<buf_offset<< " " <<__LINE__ << std::endl;
   }
   return true;
 }
