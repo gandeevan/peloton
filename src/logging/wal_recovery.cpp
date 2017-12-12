@@ -618,8 +618,6 @@ bool WalRecovery::ReplayLogFileOrReceivedBuffer(bool from_log_file, FileHandle &
 
         }
       }
-
-
     }
   }
   return true;
