@@ -43,13 +43,14 @@ Status WalReplicatorService::ReplayTransaction(ServerContext* context,
 
   int32_t rep_mode_ = peloton::settings::SettingsManager::GetInt(peloton::settings::SettingId::replication_mode);
   char *buffer = (char *)request->data().c_str();;
-
+  
+  
   if (rep_mode_ == 2){
 
     // make callback arguments
     //void (*task_callback_)(void *) = nullptr;
     //void *task_callback_arg_ = nullptr;
-
+    std::cout<<"Aysnchronous Mode"<<std::endl;
     char *buffer_cpy = (char *)malloc(sizeof(char) * request_length);
     if (buffer_cpy == nullptr){
       LOG_ERROR("Can not allocate memory !!");
@@ -67,7 +68,10 @@ Status WalReplicatorService::ReplayTransaction(ServerContext* context,
     status_code = Status::OK;
   }
   else if (rep_mode_ ==  1){
-    if( wr.ReplayLogFileOrReceivedBuffer(false, fh, buffer, request_length) ) {
+    std::cout<<"Synchronous Mode"<<std::endl;
+    if (wr.ReplayLogFileOrReceivedBuffer(false, fh, buffer, request_length)) {
+      std::cout << "Replay worked. Persisting log to buffer" << std::endl;
+      WalSecondaryReplay::PersistReplayLog(buffer, request_length);
       status_code = Status::OK;
     }
   }

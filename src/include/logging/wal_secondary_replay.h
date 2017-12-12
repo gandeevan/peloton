@@ -40,6 +40,7 @@ class WalSecondaryReplay {
   void RunReplayThread();
 
   static void ReplayTransactionWrapper(void *arg_ptr);
+  static void PersistReplayLog(const char *buf, size_t len);
  
  private:
   std::thread *replay_thread_;

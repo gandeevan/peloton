@@ -43,7 +43,7 @@ int main(int argc, char *argv[]) {
     auto &settings = peloton::settings::SettingsManager::GetInstance();
     settings.ShowInfo();
   }
-
+  std::cout<<"Replication mode: "<<FLAGS_rep_m<<std::endl;
   // set replication mode settings
   peloton::settings::SettingsManager::SetInt(peloton::settings::SettingId::replication_mode,FLAGS_rep_m);
 

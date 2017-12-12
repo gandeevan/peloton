@@ -29,5 +29,6 @@ bool LogBuffer::WriteData(const char *data, size_t len) {
     return true;
   }
 }
+
 }
 }
