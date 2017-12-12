@@ -209,7 +209,6 @@ bool WalRecovery::ReplayLogFileOrReceivedBuffer(bool from_log_file, FileHandle &
     }
     CopySerializeInput length_decode((const void *)&length_buf, 4);
     int length = length_decode.ReadInt();
-    std::cout<<"The length is " << length << std::endl;
     // Adjust the buffer
     if ((size_t)length > buf_size) {
       buffer.reset(new char[(int)(length * 1.2)]);
@@ -533,35 +532,26 @@ bool WalRecovery::ReplayLogFileOrReceivedBuffer(bool from_log_file, FileHandle &
     }
   }
 
-  std::cout << "Done with while loop" << std::endl;
   if (from_log_file) {  
     dont_start_epoch_ = true;
-    std::cout << "from log" << __LINE__ << std::endl;
     if (current_eid != INVALID_EID) {
       auto &epoch_manager = concurrency::EpochManagerFactory::GetInstance();
       epoch_manager.Reset(current_eid+1);
       epoch_manager.StartEpoch();
     }
   } else {
-    std::cout << "not from log" << __LINE__ << std::endl;
     if (WalRecovery::dont_start_epoch_) {
-      std::cout << "not from log dont start epoch" << __LINE__ << std::endl;
       if (current_eid != INVALID_EID) {
         auto &epoch_manager = concurrency::EpochManagerFactory::GetInstance();
         epoch_manager.SetCurrentEpochId(current_eid+1);
       }
     } else {
       WalRecovery::dont_start_epoch_ = true;
-      std::cout << "not from log start epoch" << __LINE__ << std::endl;
       if (current_eid != INVALID_EID) {
-      std::cout << "not from log started epoch" << __LINE__ << std::endl;
         auto &epoch_manager = concurrency::EpochManagerFactory::GetInstance();
-      std::cout << "not from log started epoch" << __LINE__ << std::endl;
         epoch_manager.Reset(current_eid+1);
-      std::cout << "not from log started epoch" << __LINE__ << std::endl;
         epoch_manager.StartEpoch();
       }
-      std::cout << "not from log started epoch" << __LINE__ << std::endl;
     }
   }
   std::set<storage::DataTable *> tables_with_indexes;
