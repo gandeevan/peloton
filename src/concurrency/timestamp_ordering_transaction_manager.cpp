@@ -574,6 +574,7 @@ void TimestampOrderingTransactionManager::PerformUpdate(
 
   InitTupleReserved(new_tile_group_header, new_location.offset);
 
+
   // we must be updating the latest version.
   // Set the header information for the new version
   ItemPointer *index_entry_ptr =
@@ -593,6 +594,25 @@ void TimestampOrderingTransactionManager::PerformUpdate(
     UNUSED_ATTRIBUTE auto res =
         AtomicUpdateItemPointer(index_entry_ptr, new_location);
     PL_ASSERT(res == true);
+  }
+
+  logging::LogRecord record =
+      logging::LogRecordFactory::CreateTupleRecord(
+          LogRecordType::TUPLE_UPDATE, new_location, current_txn->GetEpochId(),
+          current_txn->GetTransactionId(), current_txn->GetCommitId());
+  record.SetOldItemPointer(old_location);
+
+  current_txn->GetLogBuffer()->WriteRecord(record);
+
+  if(current_txn->GetLogBuffer()->HasThresholdExceeded()) {
+
+    LOG_DEBUG("Submitting log buffer %p", current_txn->GetLogBuffer());
+
+    /* insert to the queue */
+    threadpool::LoggerQueuePool::GetInstance().SubmitLogBuffer(current_txn->GetLogBuffer());
+
+    /* allocate a new buffer for the current transaction */
+    current_txn->ResetLogBuffer();
   }
 
   // Add the old tuple into the update set

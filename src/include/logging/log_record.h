@@ -15,6 +15,7 @@
 #include "common/internal_types.h"
 #include "common/item_pointer.h"
 #include "common/macros.h"
+#include "../common/internal_types.h"
 
 namespace peloton {
 namespace logging {
@@ -41,6 +42,8 @@ public:
 
   inline void SetItemPointer(const ItemPointer &pos) { tuple_pos_ = pos; }
 
+  inline void SetOldItemPointer(const ItemPointer &pos) { old_tuple_pos_ = pos; }
+
   inline void SetEpochId(const eid_t epoch_id) { eid_ = epoch_id; }
 
   inline void SetCommitId(const cid_t commit_id) { cid_ = commit_id; }
@@ -48,6 +51,8 @@ public:
   inline void SetTransactionId(const txn_id_t txn_id) { txn_id_ = txn_id; }
 
   inline const ItemPointer &GetItemPointer() { return tuple_pos_; }
+
+  inline const ItemPointer &GetOldItemPointer() { return old_tuple_pos_; }
 
   inline eid_t GetEpochId() { return eid_; }
 
@@ -57,6 +62,8 @@ public:
 
 private:
   LogRecordType log_record_type_;
+
+  ItemPointer old_tuple_pos_;
 
   ItemPointer tuple_pos_;
 
@@ -76,7 +83,7 @@ public:
                                      txn_id_t txn_id, cid_t current_cid) {
     PL_ASSERT(log_type == LogRecordType::TUPLE_INSERT ||
               log_type == LogRecordType::TUPLE_DELETE ||
-              log_type == LogRecordType::TUPLE_UPDATE);
+    log_type == LogRecordType::TUPLE_UPDATE);
     return LogRecord(log_type, pos, current_eid, txn_id, current_cid);
   }
 //  static LogRecord CreateTupleRecord(const LogRecordType log_type, const ItemPointer &pos) {

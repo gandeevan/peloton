@@ -57,12 +57,54 @@ void LogBuffer::WriteRecord(LogRecord &record) {
       break;
     }
     case LogRecordType::TUPLE_DELETE: {
-      LOG_ERROR("Delete logging not supported");
-      PL_ASSERT(false);
+      auto &manager = catalog::Manager::GetInstance();
+      auto tuple_pos = record.GetItemPointer();
+      auto tg = manager.GetTileGroup(tuple_pos.block).get();
+
+      // Write down the database id and the table id
+      output_buffer->WriteLong(tg->GetDatabaseId());
+      output_buffer->WriteLong(tg->GetTableId());
+
+      output_buffer->WriteLong(tuple_pos.block);
+      output_buffer->WriteLong(tuple_pos.offset);
+
+      break;
     }
     case LogRecordType::TUPLE_UPDATE: {
-      LOG_ERROR("Update logging not supported");
-      PL_ASSERT(false);
+      auto &manager = catalog::Manager::GetInstance();
+      auto tuple_pos = record.GetItemPointer();
+      auto old_tuple_pos = record.GetOldItemPointer();
+      auto tg = manager.GetTileGroup(tuple_pos.block).get();
+      auto old_tg = manager.GetTileGroup(old_tuple_pos.block).get();
+      std::vector<catalog::Column> columns;
+
+      // Write down the database id and the table id
+      output_buffer->WriteLong(tg->GetDatabaseId());
+      output_buffer->WriteLong(tg->GetTableId());
+
+      // Write the full tuple into the buffer
+      for (auto schema : tg->GetTileSchemas()) {
+        for (auto column : schema.GetColumns()) {
+          columns.push_back(column);
+        }
+      }
+      ContainerTuple<storage::TileGroup> container_tuple(tg, tuple_pos.offset), old_tuple(old_tg, old_tuple_pos.offset);
+
+      for (oid_t oid = 0; oid < columns.size(); oid++) {
+        auto val = container_tuple.GetValue(oid);
+        //TODO(Anirudh): Check whether non inline attributes are handled or not
+        if (val != old_tuple.GetValue(oid)) {
+          output_buffer->WriteLong(oid);
+          val.SerializeTo(*(output_buffer));
+        }
+      }
+
+      output_buffer->WriteLong(old_tuple_pos.block);
+      output_buffer->WriteLong(old_tuple_pos.offset);
+
+      output_buffer->WriteLong(tuple_pos.block);
+      output_buffer->WriteLong(tuple_pos.offset);
+      break;
     }
     default: {
       LOG_ERROR("Unsupported log record type");
