@@ -3,6 +3,7 @@
 #pragma once
 
 #include <fstream>
+#include "logging/wal_recovery.h"
 
 
 namespace peloton{
@@ -14,6 +15,7 @@ public:
   LogManager() {}
   ~LogManager() {}
 
+  //TODO(graghura): refactor using log_util.h
   inline bool init(std::string logging_dir) {
     directory_ = logging_dir;
 
@@ -34,13 +36,19 @@ public:
     return log_manager;
   }
 
+  inline void DoRecovery(){
+    WalRecovery* wr = new WalRecovery();
+    wr->StartRecovery();
+    delete wr;
+  }
+
   inline static size_t GetTransactionBufferSize() { return transaction_buffer_threshold_; }
   inline static size_t GetLoggerBufferSize() { return logger_buffer_threshold_; }
 
   inline bool IsLoggingEnabled() { return enable_logging_; }
-  inline std::string GetDirectory() { return directory_; }
-  inline std::string GetLogFilePath() { return directory_+"/tmp"; }
   inline std::ofstream *GetFileStream() { return &logger_ofstream_; }
+//  inline std::string GetDirectory() { return directory_; }
+//  inline std::string GetLogFilePath() { return directory_+"/tmp"; }
 
 //  TODO(gandeevan): support StartLogging and StopLogging
 //  static void StartLogging() {}

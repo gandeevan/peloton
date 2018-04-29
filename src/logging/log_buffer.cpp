@@ -15,6 +15,8 @@
 namespace peloton{
 namespace logging{
 
+
+
 void LogBuffer::WriteRecord(LogRecord &record) {
 
   // Reserve for the frame length
@@ -25,8 +27,8 @@ void LogBuffer::WriteRecord(LogRecord &record) {
   log_buffer_.WriteEnumInSingleByte(
           static_cast<int>(type));
 
-  log_buffer_.WriteLong(record.GetEpochId());
   log_buffer_.WriteLong(record.GetTransactionId());
+  log_buffer_.WriteLong(record.GetEpochId());
   log_buffer_.WriteLong(record.GetCommitId());
 
 

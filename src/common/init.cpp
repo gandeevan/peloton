@@ -25,8 +25,7 @@
 #include "index/index.h"
 #include "settings/settings_manager.h"
 #include "threadpool/mono_queue_pool.h"
-#include "threadpool/logger_queue_pool.h"
-#include "logging/wal_log_manager.h"
+
 
 namespace peloton {
 
@@ -91,6 +90,10 @@ void PelotonInit::Initialize() {
 
   // Initialize the Statement Cache Manager
   StatementCacheManager::Init();
+
+  //TODO(gandeevan): add recovery boolean in settings
+  //TODO(gandeevan): pass log filename
+  logging::LogManager::GetInstance().DoRecovery();
 
   // TODO(gandeevan): start logger thread
   if(logging::LogManager::GetInstance().init("/tmp")) {
